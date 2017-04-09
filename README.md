@@ -13,3 +13,7 @@ npm install graphql-combine-resolvers
 ```
 
 > You should consider using [yarn](https://yarnpkg.com/), though.
+
+## Motivation
+
+Many times we end-up repeating lots of logic on our resolvers. Access control, for instance, is something that can be done in the resolver level but just tends to end up with repeated code, even when creating services for such a task. This package solves it in a very simple and functional manner.
