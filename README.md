@@ -1,6 +1,6 @@
 # GraphQL Combine Resolvers
 
-A library to simplify composition of GraphQL [resolvers](http://graphql.org/learn/execution/).
+A library to simplify the development of GraphQL [resolvers](http://graphql.org/learn/execution/).
 
 ![Build status](https://travis-ci.org/lucasconstantino/graphql-resolvers.svg?branch=master)
 
@@ -16,11 +16,11 @@ npm install graphql-resolvers
 
 ## Motivation
 
-Many times we end-up repeating lots of logic on our resolvers. Access control, for instance, is something that can be done in the resolver level but just tends to end up with repeated code, even when creating services for such a task. This package solves it in a very simple and functional style.
+Many times we end-up repeating lots of logic on our resolvers. Access control, for instance, is something that can be done in the resolver level but just tends to end up with repeated code, even when creating services for such a task. This package aims to make it easier to build smart resolvers with logic being reusable and split in small pieces.
 
 ## How to use it
 
-This library consists solely of a helper function for combining functions in a first-result-returns manner. GraphQL resolvers is just one kind of thing to benefit from this helper. Here is an example usage with [resolver maps](http://dev.apollodata.com/tools/graphql-tools/resolvers.html):
+This library currently consists of single *[but well tested](test/combineResolvers.test.js)* helper function for combining other functions in a first-result-returns manner. GraphQL resolvers are just one kind of functions to benefit from this helper. Here is an example usage with [resolver maps](http://dev.apollodata.com/tools/graphql-tools/resolvers.html) and [graphql.js](https://github.com/graphql/graphql-js):
 
 ```js
 import { graphql } from 'graphql'
