@@ -22,7 +22,7 @@ Many times we end-up repeating lots of logic on our resolvers. Access control, f
 
 This library consists solely of a helper function for combining functions in a first-result-returns manner. GraphQL resolvers is just one kind of thing to benefit from this helper. Here is an example usage with [resolver maps](http://dev.apollodata.com/tools/graphql-tools/resolvers.html):
 
-```
+```js
 import { graphql } from 'graphql'
 import { makeExecutableSchema } from 'graphql-tools'
 import { skip, combineResolvers } from 'graphql-resolvers'
