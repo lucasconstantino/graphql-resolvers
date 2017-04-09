@@ -1,5 +1,5 @@
 {
-  "name": "graphql-combine-resolvers",
+  "name": "graphql-resolvers",
   "version": "0.0.1",
   "description": "Resolver composition library for GraphQL.",
   "main": "index.js",
@@ -43,10 +43,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lucasconstantino/graphql-combine-resolvers.git"
+    "url": "git+https://github.com/lucasconstantino/graphql-resolvers.git"
   },
   "bugs": {
-    "url": "https://github.com/lucasconstantino/graphql-combine-resolvers/issues"
+    "url": "https://github.com/lucasconstantino/graphql-resolvers/issues"
   },
-  "homepage": "https://github.com/lucasconstantino/graphql-combine-resolvers#readme"
+  "homepage": "https://github.com/lucasconstantino/graphql-resolvers#readme"
 }

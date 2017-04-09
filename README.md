@@ -2,14 +2,14 @@
 
 A library to simplify composition of GraphQL [resolvers](http://graphql.org/learn/execution/).
 
-![Build status](https://travis-ci.org/lucasconstantino/graphql-combine-resolvers.svg?branch=master)
+![Build status](https://travis-ci.org/lucasconstantino/graphql-resolvers.svg?branch=master)
 
 ## Installation
 
-This package is available on [npm](https://www.npmjs.com/package/graphql-combine-resolvers) as: *graphql-combine-resolvers*
+This package is available on [npm](https://www.npmjs.com/package/graphql-resolvers) as: *graphql-resolvers*
 
 ```
-npm install graphql-combine-resolvers
+npm install graphql-resolvers
 ```
 
 > You should consider using [yarn](https://yarnpkg.com/), though.
@@ -25,7 +25,7 @@ This library consists solely of a helper function for combining functions in a f
 ```
 import { graphql } from 'graphql'
 import { makeExecutableSchema } from 'graphql-tools'
-import { skip, combineResolvers } from 'graphql-combine-resolvers'
+import { skip, combineResolvers } from 'graphql-resolvers'
 
 const typeDefs = `
   type Query {
