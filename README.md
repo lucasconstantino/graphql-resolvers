@@ -1,4 +1,4 @@
-# GraphQL Combine Resolvers
+# GraphQL Resolvers
 
 A library to simplify the development of GraphQL [resolvers](http://graphql.org/learn/execution/).
 
