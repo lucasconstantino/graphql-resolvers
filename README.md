@@ -75,6 +75,8 @@ graphql(schema, '{ sensitive }', null, { user: { role: 'some-role' } }).then(con
 graphql(schema, '{ sensitive }', null, { user: { role: 'admin' } }).then(console.log)
 ```
 
+---
+
 ## Similar projects
 
 Besides being inspired by some functional helpers out there, this project has some goals in common with other projects:
