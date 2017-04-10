@@ -74,3 +74,15 @@ graphql(schema, '{ sensitive }', null, { user: { role: 'some-role' } }).then(con
 // Resolves with a sensitive field containing "shhhh!".
 graphql(schema, '{ sensitive }', null, { user: { role: 'admin' } }).then(console.log)
 ```
+
+## Similar projects
+
+Besides being inspired by some functional helpers out there, this project has some goals in common with other projects:
+
+#### [apollo-resolvers](https://github.com/thebigredgeek/apollo-resolvers):
+
+While `graphql-resolvers` follows the functional paradigm, this project solves the problem using an opinionated and OOP approach. Furthermore, this project also solves other problems which `graphql-resolvers` does not intend to work on, such as [solving circular references on the resolver's context](https://github.com/thebigredgeek/apollo-resolvers#resolver-context).
+
+#### [graphql-tools](https://github.com/apollographql/graphql-tools)
+
+At first, my idea was to [incorporate](https://github.com/apollographql/graphql-tools/issues/307) the `combineResolvers` method into the wider project `graphql-tools`. That may yet happen some day, but I think people my not want to install the whole `graphql-tools` project when wanting this simple package's helper on their projects. Also, `combineResolvers` should work pretty fine with resolvers binded into [`graphql/types`](http://graphql.org/graphql-js/type/) too.
