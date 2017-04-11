@@ -2,7 +2,6 @@
 import chai, { expect } from 'chai'
 import promise from 'chai-as-promised'
 import spies from 'chai-spies'
-import { get } from 'object-path'
 
 import { graphql } from 'graphql'
 import { makeExecutableSchema } from 'graphql-tools'
@@ -10,13 +9,7 @@ import { makeExecutableSchema } from 'graphql-tools'
 import { skip, combineResolvers } from '../src/combineResolvers'
 
 // Apply chai extensions.
-chai.use(promise).use(spies).use(function ({ Assertion }, utils) {
-  utils.addMethod(Assertion.prototype, 'path', function (path) {
-    return new Assertion(
-      Promise.resolve(utils.flag(this, 'object')).then(obj => get(obj, path))
-    ).eventually
-  })
-})
+chai.use(promise).use(spies)
 
 describe('combineResolvers', () => {
   const resolvers = {
@@ -269,51 +262,51 @@ describe('combineResolvers', () => {
       describe('hello', () => {
         it('should return error when no user is logged in', () => {
           return expect(graphql(schema, '{ hello }', null, {}))
-            .to.eventually.have.path('errors.0.message').equal('Not authenticated')
+            .to.eventually.have.deep.property('errors.0.message').equal('Not authenticated')
         })
 
         it('should return resolved value when user is logged in', () => {
           return expect(graphql(schema, '{ hello }', null, { user: { name: 'John Doe' } }))
-            .to.eventually.have.path('data.hello').equal('Hello, John Doe')
+            .to.eventually.have.deep.property('data.hello').equal('Hello, John Doe')
         })
       })
 
       describe('sensitive', () => {
         it('should return error when no user is logged in', () => {
           return expect(graphql(schema, '{ sensitive }', null, {}))
-            .to.eventually.have.path('errors.0.message').equal('Not authenticated')
+            .to.eventually.have.deep.property('errors.0.message').equal('Not authenticated')
         })
 
         it('should return error when no user is logged in', () => {
           return expect(graphql(schema, '{ sensitive }', null, { user: {} }))
-            .to.eventually.have.path('errors.0.message').equal('Not admin')
+            .to.eventually.have.deep.property('errors.0.message').equal('Not admin')
         })
 
         it('should return resolved value when user is admin', () => {
           return expect(graphql(schema, '{ sensitive }', null, { user: { role: 'admin' } }))
-            .to.eventually.have.path('data.sensitive').equal('shhhh!')
+            .to.eventually.have.deep.property('data.sensitive').equal('shhhh!')
         })
       })
 
       describe('vote', () => {
         it('should return error when no user is logged in', () => {
           return expect(graphql(schema, 'mutation { vote(choice: "A") }', null, {}))
-            .to.eventually.have.path('errors.0.message').equal('Not authenticated')
+            .to.eventually.have.deep.property('errors.0.message').equal('Not authenticated')
         })
 
         it('should return error when user is underage', () => {
           return expect(graphql(schema, 'mutation { vote(choice: "B") }', null, { user: { age: 10 } }))
-            .to.eventually.have.path('errors.0.message').equal('User is underage 16')
+            .to.eventually.have.deep.property('errors.0.message').equal('User is underage 16')
         })
 
         it('should return error when options is invalid', () => {
           return expect(graphql(schema, 'mutation { vote(choice: "Z") }', null, { user: { age: 18 } }))
-            .to.eventually.have.path('errors.0.message').equal('Option "Z" is invalid')
+            .to.eventually.have.deep.property('errors.0.message').equal('Option "Z" is invalid')
         })
 
         it('should return true when vote is registered', () => {
           return expect(graphql(schema, 'mutation { vote(choice: "C") }', null, { user: { age: 18 } }))
-            .to.eventually.have.path('data.vote').true
+            .to.eventually.have.deep.property('data.vote').true
         })
       })
     })

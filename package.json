@@ -33,8 +33,7 @@
     "eslint-plugin-node": "^4.2.2",
     "graphql": "^0.9.2",
     "graphql-tools": "^0.11.0",
-    "mocha": "^3.1.2",
-    "object-path": "^0.11.4"
+    "mocha": "^3.1.2"
   },
   "dependencies": {},
   "directories": {
