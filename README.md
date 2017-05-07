@@ -20,7 +20,11 @@ Many times we end-up repeating lots of logic on our resolvers. Access control, f
 
 ## How to use it
 
-This library currently consists of single *[but well tested](test/combineResolvers.test.js)* helper function for combining other functions in a first-result-returns manner. GraphQL resolvers are just one kind of functions to benefit from this helper. Here is an example usage with [resolver maps](http://dev.apollodata.com/tools/graphql-tools/resolvers.html) and [graphql.js](https://github.com/graphql/graphql-js):
+This library currently consists of two simple *but [well](test/combineResolvers.test.js) [tested](test/pipeResolvers.test.js)* helper functions for combining other functions into a more specialized one. It is much like *compose* or *[pipe](http://ramdajs.com/docs/#pipe)* do, but they are more intended to be used for GraphQL resolvers - even though these are just one kind of functionality to benefit from this helper.
+
+### `combinedResolvers`
+
+Helper for combining other functions in a first-result-returns manner. Here is an example usage with [resolver maps](http://dev.apollodata.com/tools/graphql-tools/resolvers.html) and [graphql.js](https://github.com/graphql/graphql-js):
 
 ```js
 import { graphql } from 'graphql'
@@ -77,13 +81,77 @@ graphql(schema, '{ sensitive }', null, { user: { role: 'admin' } }).then(console
 
 ---
 
+### `pipeResolvers`
+
+Helper for combining other functions in a piping manner, where each will provide the next with a newly resolved root. Usually this kind of need is accomplished by GraphQL itself using nested types, but sometimes, for instance, you simply want to reuse a logic from a sibling resolver in another one, and GraphQL won't help you there. Here goes a sample:
+
+```js
+import { last, length, groupBy, pipe, prop, sortBy, values } from 'ramda'
+import { graphql } from 'graphql'
+import { makeExecutableSchema } from 'graphql-tools'
+import { pipeResolvers } from 'graphql-resolvers'
+
+const typeDefs = `
+  type Vote {
+    choice: String
+  }
+
+  type Query {
+    votes: [Vote]
+    winningChoice: String
+  }
+
+  schema {
+    query: Query
+  }
+`
+
+/**
+ * Sample resolver for an array of votes.
+ */
+const votes = () => [
+  { choice: 'A', id: 1 },
+  { choice: 'B', id: 2 },
+  { choice: 'C', id: 3 },
+  { choice: 'B', id: 4 },
+  { choice: 'C', id: 5 },
+  { choice: 'C', id: 6 },
+]
+
+/**
+ * Sample resolver for the calculation of winner choice.
+ * If you are not used to functional programming with Ramda, worry not: the "pipe"
+ * call below will return a function, which when called with an array of votes (such
+ * as the one above) will return the choice, as a string, which occurs more times. In
+ * this case, "C".
+ */
+const winningChoice = pipeResolvers(votes, pipe(
+  groupBy(prop('choice')),
+  values,
+  sortBy(length),
+  last,
+  last,
+  prop('choice')
+))
+
+// Resolver map
+const resolvers = { Query: { votes, winningChoice } }
+
+const schema = makeExecutableSchema({ typeDefs, resolvers })
+
+// Resolves with winningChoice equal to "C".
+graphql(schema, '{ winningChoice }').then(console.log)
+```
+
+---
+
 ## Similar projects
 
 Besides being inspired by some functional helpers out there, this project has some goals in common with other projects:
 
 #### [apollo-resolvers](https://github.com/thebigredgeek/apollo-resolvers):
 
-While `graphql-resolvers` follows the functional paradigm, this project solves the problem using an opinionated and OOP approach. Furthermore, this project also solves other problems which `graphql-resolvers` does not intend to work on, such as [solving circular references on the resolver's context](https://github.com/thebigredgeek/apollo-resolvers#resolver-context).
+While `graphql-resolvers` follows the functional paradigm, `apollo-resolvers` project solves the problem using an opinionated and OOP approach. Furthermore, the second also solves other problems which `graphql-resolvers` does not intend to work on, such as [solving circular references on the resolver's context](https://github.com/thebigredgeek/apollo-resolvers#resolver-context).
 
 #### [graphql-tools](https://github.com/apollographql/graphql-tools)
 
