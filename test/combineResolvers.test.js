@@ -1,7 +1,6 @@
 /* eslint-disable brace-style */
 import chai, { expect } from 'chai'
 import promise from 'chai-as-promised'
-import spies from 'chai-spies'
 
 import { graphql } from 'graphql'
 import { makeExecutableSchema } from 'graphql-tools'
@@ -12,7 +11,7 @@ import { combineResolvers } from '../src/combineResolvers'
 import { resolvers, promiseResolvers, spyResolvers, clearSpyResolvers } from './helpers'
 
 // Apply chai extensions.
-chai.use(promise).use(spies)
+chai.use(promise)
 
 describe('combineResolvers', () => {
   beforeEach(clearSpyResolvers)
@@ -66,7 +65,7 @@ describe('combineResolvers', () => {
     it('should only execute resolvers until a value is resolved', async () => {
       await combineResolvers(spyResolvers.string, spyResolvers.other)()
       expect(spyResolvers.string).to.have.been.called.once
-      expect(spyResolvers.other).not.to.have.been.called
+      expect(spyResolvers.other).not.to.have.been.called.once
     })
   })
 
@@ -75,14 +74,14 @@ describe('combineResolvers', () => {
       await combineResolvers(spyResolvers.empty, spyResolvers.string, spyResolvers.other)()
       expect(spyResolvers.empty).to.have.been.called.once
       expect(spyResolvers.string).to.have.been.called.once
-      expect(spyResolvers.other).not.to.have.been.called
+      expect(spyResolvers.other).not.to.have.been.called.once
     })
 
     it('should only execute resolvers until a value is resolved', async () => {
       await combineResolvers(spyResolvers.empty, spyResolvers.error, spyResolvers.string)()
       expect(spyResolvers.empty).to.have.been.called.once
       expect(spyResolvers.error).to.have.been.called.once
-      expect(spyResolvers.string).not.to.have.been.called
+      expect(spyResolvers.string).not.to.have.been.called.once
     })
   })
 
@@ -136,10 +135,7 @@ describe('combineResolvers', () => {
     /**
      * Sample sensitive information resolver, for admins only.
      */
-    const sensitive = combineResolvers(
-      isAdmin,
-      (root, args, { user: { name } }) => 'shhhh!'
-    )
+    const sensitive = combineResolvers(isAdmin, () => 'shhhh!')
 
     /**
      * Sample invalid option resolver for the voting system.
