@@ -6,35 +6,16 @@ import spies from 'chai-spies'
 import { graphql } from 'graphql'
 import { makeExecutableSchema } from 'graphql-tools'
 
-import { skip, combineResolvers } from '../src/combineResolvers'
+import { skip } from '../src/utils'
+import { combineResolvers } from '../src/combineResolvers'
+
+import { resolvers, promiseResolvers, spyResolvers, clearSpyResolvers } from './helpers'
 
 // Apply chai extensions.
 chai.use(promise).use(spies)
 
 describe('combineResolvers', () => {
-  const resolvers = {
-    skip: () => skip,
-    empty: () => {},
-    string: () => 'string',
-    other: () => 'other',
-    error: () => new Error('some returned error'),
-    thrownError: () => { throw new Error('some throw error') },
-  }
-
-  // Wrap every resolver in promise resolvers for tests.
-  const promiseResolvers = Object.keys(resolvers)
-    .reduce((result, key) => Object.assign(result, {
-      [key]: async (...args) => resolvers[key](...args)
-    }), {})
-
-  // Wrap every resolver in spies for tests.
-  const spyResolvers = Object.keys(resolvers)
-    .reduce((result, key) => Object.assign(result, {
-      [key]: chai.spy(resolvers[key])
-    }), {})
-
-  // Clear spies before each test.
-  beforeEach(() => Object.keys(spyResolvers).forEach(key => spyResolvers[key].reset()))
+  beforeEach(clearSpyResolvers)
 
   describe('single resolver', () => {
     it('should return a function once combined', () => {
