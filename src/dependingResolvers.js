@@ -3,6 +3,7 @@ import { push } from 'object-path'
 import deepEqual from 'deep-equal'
 
 import { nextTick, skip } from './utils'
+import { allResolvers } from './allResolvers'
 import { pipeResolvers } from './pipeResolvers'
 import { combineResolvers } from './combineResolvers'
 import { contextMustBeObject } from './miscResolvers'
@@ -83,11 +84,5 @@ export const resolveDependee = dependeeName => combineResolvers(
  */
 export const resolveDependees = dependeeNames => combineResolvers(
   contextMustBeObject,
-  pipeResolvers.apply(null, [() => []].concat(
-    dependeeNames.map(
-      dependeeName => pipeResolvers(
-        (...args) => args[0].concat(resolveDependee(dependeeName)(...args))
-      )
-    ))
-  ),
+  allResolvers(dependeeNames.map(resolveDependee)),
 )
