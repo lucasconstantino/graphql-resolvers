@@ -1,6 +1,6 @@
 # GraphQL Resolvers
 
-A library to simplify the development of GraphQL [resolvers](http://graphql.org/learn/execution/).
+Resolver composition library for GraphQL
 
 ![Build status](https://travis-ci.org/lucasconstantino/graphql-resolvers.svg?branch=master)
 
