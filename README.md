@@ -2,7 +2,7 @@
 
 Resolver composition library for GraphQL
 
-[![build status](https://img.shields.io/travis/lucasconstantino/graphql-resolvers/master.svg?style=flat-square)](https://travis-ci.org/lucasconstantino/graphql)
+[![build status](https://img.shields.io/travis/lucasconstantino/graphql-resolvers/master.svg?style=flat-square)](https://travis-ci.org/lucasconstantino/graphql-resolvers)
 [![coverage](https://img.shields.io/codecov/c/github/lucasconstantino/graphql-resolvers.svg?style=flat-square)](https://codecov.io/github/lucasconstantino/graphql-resolvers)
 [![npm version](https://img.shields.io/npm/v/graphql-resolvers.svg?style=flat-square)](https://www.npmjs.com/package/graphql-resolvers)
 
