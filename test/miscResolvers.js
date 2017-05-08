@@ -3,7 +3,8 @@ import chai, { expect } from 'chai'
 import spies from 'chai-spies'
 
 import { skip } from '../src/utils'
-import { loggingResolver, contextMustBeObject } from '../src/miscResolvers'
+import { pipeResolvers } from '../src/pipeResolvers'
+import { loggingResolver, contextMustBeObject, allResolvers } from '../src/miscResolvers'
 
 // Apply chai extensions.
 chai.use(spies)
@@ -51,5 +52,33 @@ describe('miscResolvers', () => {
       // eslint-disable-next-line no-new-wrappers
       expect(contextMustBeObject(null, null, new String('string object'))).to.be.equal(skip)
     })
+  })
+
+  describe.only('allResolvers', () => {
+    const stringResolver = () => 'string'
+    const numberResolver = () => 2
+    const pipedResolver = pipeResolvers(stringResolver, numberResolver)
+
+    it('should resolve to an empty array when resolvers array is empty', () =>
+      expect(allResolvers([])()).to.eventually.deep.equal([])
+    )
+
+    it('should resolve a single resolver', () =>
+      expect(allResolvers([stringResolver])()).to.eventually.deep.equal(['string'])
+    )
+
+    it('should resolve multiple resolvers', () =>
+      expect(allResolvers([stringResolver, numberResolver])())
+        .to.eventually.deep.equal(['string', 2])
+    )
+
+    it('should resolve composed resolvers', () =>
+      expect(allResolvers([stringResolver, numberResolver, pipedResolver])())
+        .to.eventually.deep.equal(['string', 2, 2])
+    )
+
+    it('should throw when no argument is provided', () =>
+      expect(() => allResolvers()()).to.throw
+    )
   })
 })
