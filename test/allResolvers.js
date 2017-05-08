@@ -8,7 +8,7 @@ import { pipeResolvers } from '../src/pipeResolvers'
 // Apply chai extensions.
 chai.use(spies)
 
-describe.only('allResolvers', () => {
+describe('allResolvers', () => {
   const stringResolver = chai.spy(() => 'string')
   const numberResolver = chai.spy(() => 2)
   const pipedResolver = chai.spy(pipeResolvers(stringResolver, numberResolver))
