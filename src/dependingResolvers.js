@@ -10,7 +10,7 @@ import { contextMustBeObject } from './miscResolvers'
 /**
  * Piping resolver to save current value and reference to dependees cache.
  */
-const saveValueToDependees = combineResolvers(
+const saveDependee = combineResolvers(
   contextMustBeObject,
   (value, args, context, info) => ((
     push(context, '_dependees', { path: info.path, value }),
@@ -31,7 +31,7 @@ const saveValueToDependees = combineResolvers(
 export const isDependee = resolver => combineResolvers(
   pipeResolvers(
     resolver,
-    saveValueToDependees
+    saveDependee
   )
 )
 
