@@ -8,6 +8,7 @@
     "lint": "eslint index.js src",
     "test": "_mocha --require babel-register --require babel-polyfill",
     "coverage": "istanbul cover _mocha -- --require babel-register --require babel-polyfill",
+    "codecov": "yarn coverage && codecov",
     "prepublish": "npm test && npm run lint && npm run compile"
   },
   "keywords": [
@@ -28,6 +29,7 @@
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
     "chai-spies": "^0.7.1",
+    "codecov": "^2.1.0",
     "eslint": "^3.10.2",
     "eslint-config-taller": "^1.0.4",
     "eslint-plugin-import": "^2.2.0",
