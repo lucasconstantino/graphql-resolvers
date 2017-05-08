@@ -4,8 +4,8 @@ import { skip } from './utils'
 /**
  * Logging resolver. Useful for debugging.
  */
-export const loggingResolver = (root, args, context, info) => ((
-  console.log({ root, args, context, info }),
+export const loggingResolver = (...args) => ((
+  console.log(args, 'Logging resolver'),
   skip
 ))
 
