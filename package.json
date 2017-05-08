@@ -6,7 +6,8 @@
   "scripts": {
     "compile": "babel src -d lib",
     "lint": "eslint index.js src",
-    "test": "mocha --require babel-register --require babel-polyfill",
+    "test": "_mocha --require babel-register --require babel-polyfill",
+    "coverage": "istanbul cover _mocha -- --require babel-register --require babel-polyfill",
     "prepublish": "npm test && npm run lint && npm run compile"
   },
   "keywords": [
@@ -33,6 +34,7 @@
     "eslint-plugin-node": "^4.2.2",
     "graphql": "^0.9.2",
     "graphql-tools": "^0.11.0",
+    "istanbul": "1.0.0-alpha",
     "mocha": "^3.1.2",
     "ramda": "^0.23.0"
   },
