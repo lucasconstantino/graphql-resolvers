@@ -73,3 +73,21 @@ export const resolveDependee = dependeeName => combineResolvers(
       : resolved.value,
   ),
 )
+
+/**
+ * Resolver implementation to retrieve the resolved value of a dependee sibling field.
+ *
+ * @param {[String]} dependeeNames Array of names of the dependees this resolver depends on.
+ * @param {Function} resolver Resolver implemenatation.
+ * @return {Function} dependee resolver.
+ */
+export const resolveDependees = dependeeNames => combineResolvers(
+  contextMustBeObject,
+  pipeResolvers.apply(null, [() => []].concat(
+    dependeeNames.map(
+      dependeeName => pipeResolvers(
+        (...args) => args[0].concat(resolveDependee(dependeeName)(...args))
+      )
+    ))
+  ),
+)
