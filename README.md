@@ -8,7 +8,7 @@ Resolver composition library for GraphQL
 
 ---
 
-This library consists of simple *but [well tested](https://codecov.io/github/lucasconstantino/graphql-resolvers)* helper functions for combining other functions into more specialized ones.
+This library consists of simple *[but well tested](https://codecov.io/github/lucasconstantino/graphql-resolvers)* helper functions for combining other functions into more specialized ones.
 
 ## Installation
 
@@ -26,7 +26,7 @@ Many times we end-up repeating lots of logic on our resolvers. Access control, f
 
 ## Documentation
 
-[Read full documenation here](docs/API.ms)
+[Read full documenation here](docs/API.md)
 
 ## Similar projects
 
