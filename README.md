@@ -26,7 +26,7 @@ Many times we end-up repeating lots of logic on our resolvers. Access control, f
 
 ## Documentation
 
-[Read full documenation here](docs/API.md)
+[Read full documentation here](docs/API.md)
 
 ## Similar projects
 
