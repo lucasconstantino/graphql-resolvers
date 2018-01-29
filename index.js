@@ -14,4 +14,5 @@ module.exports.combine = module.exports.combineResolvers
 
 // Field dependency.
 module.exports.isDependee = require('./lib/dependingResolvers.js').isDependee
-module.exports.dependeeResolver = require('./lib/dependingResolvers.js').dependeeResolver
+module.exports.resolveDependee = require('./lib/dependingResolvers.js').resolveDependee
+module.exports.resolveDependees = require('./lib/dependingResolvers.js').resolveDependees
