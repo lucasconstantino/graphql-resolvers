@@ -11,31 +11,39 @@ import { isDependee, resolveDependee, resolveDependees } from '../src/dependingR
 // Apply chai extensions.
 chai.use(spies)
 
+/**
+ * Helper method to delay a value retriaval.
+ */
+const delayed = value => new Promise(resolve => setTimeout(() => resolve(value), 50))
+
+/**
+ * Setup resolvers with dependencies between them.
+ * @param {Function} getter A function to allow altering the resolver function.
+ * @return {Object} resolvers.
+ */
+const setupResolvers = (getter = v => v) => {
+  const resolvers = {}
+  const sources = {}
+
+  sources.dependee = chai.spy(() => 'dependee value')
+  resolvers.dependee = isDependee(sources.dependee)
+
+  sources.delayedDependee = chai.spy(() => delayed('delayedDependee value'))
+  resolvers.delayedDependee = isDependee(sources.delayedDependee)
+
+  sources.dependent = chai.spy(dependee => 'dependent and ' + dependee)
+  resolvers.dependent = pipeResolvers(resolveDependee('dependee'), sources.dependent)
+
+  sources.dependentOnDelayed = chai.spy(delayedDependee => 'dependentOnDelayed and ' + delayedDependee)
+  resolvers.dependentOnDelayed = pipeResolvers(resolveDependee('delayedDependee'), sources.dependentOnDelayed)
+
+  sources.dependents = chai.spy(dependees => dependees)
+  resolvers.dependents = pipeResolvers(resolveDependees(['dependee', 'delayedDependee']), sources.dependents)
+
+  return { resolvers, sources }
+}
+
 describe('dependingResolvers', () => {
-  /**
-   * Setup resolvers with dependencies between them.
-   * @param {Function} getter A function to allow altering the resolver function.
-   * @return {Object} resolvers.
-   */
-  const setupResolvers = (getter = v => v) => {
-    const resolvers = {}
-    const sources = {}
-
-    sources.dependee = chai.spy(() => 'dependee value')
-    resolvers.dependee = isDependee(sources.dependee)
-
-    sources.secondDependee = chai.spy(() => 'secondDependee value')
-    resolvers.secondDependee = isDependee(sources.secondDependee)
-
-    sources.dependent = chai.spy(dependee => 'dependent and ' + dependee)
-    resolvers.dependent = pipeResolvers(resolveDependee('dependee'), sources.dependent)
-
-    sources.dependents = chai.spy(dependees => dependees)
-    resolvers.dependents = pipeResolvers(resolveDependees(['dependee', 'secondDependee']), sources.dependents)
-
-    return { resolvers, sources }
-  }
-
   describe('RootQuery', () => {
     const setup = () => {
       const typeDefs = `
@@ -43,7 +51,9 @@ describe('dependingResolvers', () => {
           dependee: String
           dependent: String
 
-          secondDependee: String
+          delayedDependee: String
+          dependentOnDelayed: String
+
           dependents: [String]
         }
 
@@ -68,6 +78,13 @@ describe('dependingResolvers', () => {
         const result = await graphql(schema, '{ dependee }', null, {})
         expect(result).to.have.deep.property('data.dependee', 'dependee value')
         expect(dependee).to.have.been.called.once
+      })
+
+      it.skip('should resolve value normally, even when resolved to a promise', async () => {
+        const { schema, sources: { delayedDependee } } = setup()
+        const result = await graphql(schema, '{ delayedDependee }', null, {})
+        expect(result).to.have.deep.property('data.delayedDependee', 'delayedDependee value')
+        expect(delayedDependee).to.have.been.called.once
       })
 
       it('should throw when context is not an object', async () => {
@@ -115,26 +132,35 @@ describe('dependingResolvers', () => {
           'Some functionality requires context to be an object.'
         )
       })
+
+      it.skip('should resolve dependee only once, even when it resolves to a promise', async () => {
+        const { schema, sources: { delayedDependee, dependentOnDelayed } } = setup()
+        const result = await graphql(schema, '{ delayedDependee, dependentOnDelayed }', null, {})
+
+        expect(result).to.have.deep.property('data.dependentOnDelayed', 'dependentOnDelayed and delayedDependee value')
+        expect(delayedDependee).to.have.been.called.once
+        expect(dependentOnDelayed).to.have.been.called.once
+      })
     })
 
     describe('resolveDependees', () => {
-      it('should resolve dependents when requiring all fields', async () => {
-        const { schema, sources: { dependee, secondDependee, dependents } } = setup()
-        const result = await graphql(schema, '{ dependee, secondDependee, dependents }', null, {})
+      it.skip('should resolve dependents when requiring all fields', async () => {
+        const { schema, sources: { dependee, delayedDependee, dependents } } = setup()
+        const result = await graphql(schema, '{ dependee, delayedDependee, dependents }', null, {})
         expect(result).to.have.deep.property('data.dependents.0', 'dependee value')
-        expect(result).to.have.deep.property('data.dependents.1', 'secondDependee value')
+        expect(result).to.have.deep.property('data.dependents.1', 'delayedDependee value')
         expect(dependee).to.have.been.called.once
-        expect(secondDependee).to.have.been.called.once
+        expect(delayedDependee).to.have.been.called.once
         expect(dependents).to.have.been.called.once
       })
 
       it('should resolve dependents when requiring only dependent field', async () => {
-        const { schema, sources: { dependee, secondDependee, dependents } } = setup()
+        const { schema, sources: { dependee, delayedDependee, dependents } } = setup()
         const result = await graphql(schema, '{ dependents }', null, {})
         expect(result).to.have.deep.property('data.dependents.0', 'dependee value')
-        expect(result).to.have.deep.property('data.dependents.1', 'secondDependee value')
+        expect(result).to.have.deep.property('data.dependents.1', 'delayedDependee value')
         expect(dependee).to.have.been.called.once
-        expect(secondDependee).to.have.been.called.once
+        expect(delayedDependee).to.have.been.called.once
         expect(dependents).to.have.been.called.once
       })
 
@@ -167,7 +193,9 @@ describe('dependingResolvers', () => {
           dependee: String
           dependent: String
 
-          secondDependee: String
+          delayedDependee: String
+          dependentOnDelayed: String
+
           dependents: [String]
         }
 
@@ -199,6 +227,20 @@ describe('dependingResolvers', () => {
         const result = await graphql(schema, '{ type { dependee } }', null, {})
         expect(result).to.have.deep.property('data.type.dependee', 'dependee value')
         expect(dependee).to.have.been.called.once
+      })
+
+      it.skip('should resolve value normally, even when resolved to a promise', async () => {
+        const { schema, sources: { delayedDependee } } = setup()
+        const result = await graphql(schema, '{ type { delayedDependee } }', null, {})
+        expect(result).to.have.deep.property('data.type.delayedDependee', 'delayedDependee value')
+        expect(delayedDependee).to.have.been.called.once
+      })
+
+      it('should resolve value normally, even when resolved to a promise', async () => {
+        const { schema, sources: { delayedDependee } } = setup()
+        const result = await graphql(schema, '{ type { delayedDependee } }', null, {})
+        expect(result).to.have.deep.property('data.type.delayedDependee', 'delayedDependee value')
+        expect(delayedDependee).to.have.been.called.once
       })
 
       it('should throw when context is not an object', async () => {
@@ -246,26 +288,35 @@ describe('dependingResolvers', () => {
           'Some functionality requires context to be an object.'
         )
       })
+
+      it.skip('should resolve dependee only once, even when it resolves to a promise', async () => {
+        const { schema, sources: { delayedDependee, dependentOnDelayed } } = setup()
+        const result = await graphql(schema, '{ delayedDependee, dependentOnDelayed }', null, {})
+
+        expect(result).to.have.deep.property('data.dependentOnDelayed', 'dependentOnDelayed and delayedDependee value')
+        expect(delayedDependee).to.have.been.called.once
+        expect(dependentOnDelayed).to.have.been.called.once
+      })
     })
 
     describe('resolveDependees', () => {
-      it('should resolve dependents when requiring all fields', async () => {
-        const { schema, sources: { dependee, secondDependee, dependents } } = setup()
-        const result = await graphql(schema, '{ type { dependee, secondDependee, dependents } }', null, {})
+      it.skip('should resolve dependents when requiring all fields', async () => {
+        const { schema, sources: { dependee, delayedDependee, dependents } } = setup()
+        const result = await graphql(schema, '{ type { dependee, delayedDependee, dependents } }', null, {})
         expect(result).to.have.deep.property('data.type.dependents.0', 'dependee value')
-        expect(result).to.have.deep.property('data.type.dependents.1', 'secondDependee value')
+        expect(result).to.have.deep.property('data.type.dependents.1', 'delayedDependee value')
         expect(dependee).to.have.been.called.once
-        expect(secondDependee).to.have.been.called.once
+        expect(delayedDependee).to.have.been.called.once
         expect(dependents).to.have.been.called.once
       })
 
       it('should resolve dependents when requiring only dependent field', async () => {
-        const { schema, sources: { dependee, secondDependee, dependents } } = setup()
+        const { schema, sources: { dependee, delayedDependee, dependents } } = setup()
         const result = await graphql(schema, '{ type { dependents } }', null, {})
         expect(result).to.have.deep.property('data.type.dependents.0', 'dependee value')
-        expect(result).to.have.deep.property('data.type.dependents.1', 'secondDependee value')
+        expect(result).to.have.deep.property('data.type.dependents.1', 'delayedDependee value')
         expect(dependee).to.have.been.called.once
-        expect(secondDependee).to.have.been.called.once
+        expect(delayedDependee).to.have.been.called.once
         expect(dependents).to.have.been.called.once
       })
 
