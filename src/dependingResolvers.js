@@ -29,11 +29,9 @@ const saveDependee = combineResolvers(
  * @param {Function} resolver Resolver implementation.
  * @return {Promise}.
  */
-export const isDependee = resolver => combineResolvers(
-  pipeResolvers(
-    resolver,
-    saveDependee
-  )
+export const isDependee = resolver => pipeResolvers(
+  resolver,
+  saveDependee
 )
 
 /**
@@ -68,7 +66,7 @@ export const resolveDependee = dependeeName => combineResolvers(
       .filter(({ path: { prev } }) => deepEqual(prev, info.path.prev))
       .find(({ path: { key } }) => key === dependeeName),
 
-    // Run field resolution, in resolved value was not found.
+    // Run field resolution, if resolved value was not found.
     (resolved, args, context, info) => resolved === skip
       ? info.parentType._fields[dependeeName].resolve(info.rootValue, args, context, info)
       : resolved.value,
@@ -76,7 +74,7 @@ export const resolveDependee = dependeeName => combineResolvers(
 )
 
 /**
- * Resolver implementation to retrieve the resolved value of a dependee sibling field.
+ * Resolver implementation to retrieve the resolved value of multiple dependee sibling fields.
  *
  * @param {[String]} dependeeNames Array of names of the dependees this resolver depends on.
  * @param {Function} resolver Resolver implemenatation.
