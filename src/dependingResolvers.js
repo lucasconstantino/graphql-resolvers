@@ -29,10 +29,8 @@ const saveDependee = combineResolvers(
  * @param {Function} resolver Resolver implementation.
  * @return {Promise}.
  */
-export const isDependee = resolver => pipeResolvers(
-  resolver,
-  saveDependee
-)
+export const isDependee = resolver => (root, ...args) =>
+  saveDependee(resolver(root, ...args), ...args)
 
 /**
  * Make sure the field name exists on the parent type.

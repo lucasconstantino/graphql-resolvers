@@ -80,7 +80,7 @@ describe('dependingResolvers', () => {
         expect(dependee).to.have.been.called.once
       })
 
-      it.skip('should resolve value normally, even when resolved to a promise', async () => {
+      it('should resolve value normally, even when resolved to a promise', async () => {
         const { schema, sources: { delayedDependee } } = setup()
         const result = await graphql(schema, '{ delayedDependee }', null, {})
         expect(result).to.have.deep.property('data.delayedDependee', 'delayedDependee value')
@@ -133,7 +133,7 @@ describe('dependingResolvers', () => {
         )
       })
 
-      it.skip('should resolve dependee only once, even when it resolves to a promise', async () => {
+      it('should resolve dependee only once, even when it resolves to a promise', async () => {
         const { schema, sources: { delayedDependee, dependentOnDelayed } } = setup()
         const result = await graphql(schema, '{ delayedDependee, dependentOnDelayed }', null, {})
 
@@ -144,7 +144,7 @@ describe('dependingResolvers', () => {
     })
 
     describe('resolveDependees', () => {
-      it.skip('should resolve dependents when requiring all fields', async () => {
+      it('should resolve dependents when requiring all fields', async () => {
         const { schema, sources: { dependee, delayedDependee, dependents } } = setup()
         const result = await graphql(schema, '{ dependee, delayedDependee, dependents }', null, {})
         expect(result).to.have.deep.property('data.dependents.0', 'dependee value')
@@ -229,7 +229,7 @@ describe('dependingResolvers', () => {
         expect(dependee).to.have.been.called.once
       })
 
-      it.skip('should resolve value normally, even when resolved to a promise', async () => {
+      it('should resolve value normally, even when resolved to a promise', async () => {
         const { schema, sources: { delayedDependee } } = setup()
         const result = await graphql(schema, '{ type { delayedDependee } }', null, {})
         expect(result).to.have.deep.property('data.type.delayedDependee', 'delayedDependee value')
@@ -289,18 +289,18 @@ describe('dependingResolvers', () => {
         )
       })
 
-      it.skip('should resolve dependee only once, even when it resolves to a promise', async () => {
+      it('should resolve dependee only once, even when it resolves to a promise', async () => {
         const { schema, sources: { delayedDependee, dependentOnDelayed } } = setup()
-        const result = await graphql(schema, '{ delayedDependee, dependentOnDelayed }', null, {})
+        const result = await graphql(schema, '{ type { delayedDependee, dependentOnDelayed } }', null, {})
 
-        expect(result).to.have.deep.property('data.dependentOnDelayed', 'dependentOnDelayed and delayedDependee value')
+        expect(result).to.have.deep.property('data.type.dependentOnDelayed', 'dependentOnDelayed and delayedDependee value')
         expect(delayedDependee).to.have.been.called.once
         expect(dependentOnDelayed).to.have.been.called.once
       })
     })
 
     describe('resolveDependees', () => {
-      it.skip('should resolve dependents when requiring all fields', async () => {
+      it('should resolve dependents when requiring all fields', async () => {
         const { schema, sources: { dependee, delayedDependee, dependents } } = setup()
         const result = await graphql(schema, '{ type { dependee, delayedDependee, dependents } }', null, {})
         expect(result).to.have.deep.property('data.type.dependents.0', 'dependee value')
