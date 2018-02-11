@@ -8,6 +8,12 @@ import { pipeResolvers } from './pipeResolvers'
 import { combineResolvers } from './combineResolvers'
 import { contextMustBeObject } from './miscResolvers'
 
+function isPromise (obj) {
+  return obj && (typeof obj === 'object' ||
+      typeof obj === 'function') &&
+    typeof obj.then === 'function'
+}
+
 /**
  * Piping resolver to save current value and reference to dependees cache.
  */
@@ -29,12 +35,31 @@ const saveDependee = combineResolvers(
  * @param {Function} resolver Resolver implementation.
  * @return {Promise}.
  */
-export const isDependee = resolver => combineResolvers(
-  pipeResolvers(
-    resolver,
-    saveDependee
+export const isDependee = resolver => {
+  let cache = null
+  return combineResolvers(
+    pipeResolvers(
+      (...args) => {
+        if (cache) {
+          return cache
+        }
+        const result = resolver(...args)
+        if (!isPromise(result)) {
+          return result
+        }
+        cache = result.then(res => {
+          cache = null
+          return res
+        }).catch(err => {
+          cache = null
+          throw err
+        })
+        return cache
+      },
+      saveDependee
+    )
   )
-)
+}
 
 /**
  * Make sure the field name exists on the parent type.
