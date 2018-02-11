@@ -12,52 +12,66 @@ import { isDependee, resolveDependee, resolveDependees } from '../src/dependingR
 chai.use(spies)
 
 describe('dependingResolvers', () => {
+  /**
+   * Setup resolvers with dependencies between them.
+   * @param {Function} getter A function to allow altering the resolver function.
+   * @return {Object} resolvers.
+   */
+  const setupResolvers = (getter = v => v) => {
+    const resolvers = {}
+    const sources = {}
+
+    sources.dependee = chai.spy(() => 'dependee value')
+    resolvers.dependee = isDependee(sources.dependee)
+
+    sources.secondDependee = chai.spy(() => 'secondDependee value')
+    resolvers.secondDependee = isDependee(sources.secondDependee)
+
+    sources.dependent = chai.spy(dependee => 'dependent and ' + dependee)
+    resolvers.dependent = pipeResolvers(resolveDependee('dependee'), sources.dependent)
+
+    sources.dependents = chai.spy(dependees => dependees)
+    resolvers.dependents = pipeResolvers(resolveDependees(['dependee', 'secondDependee']), sources.dependents)
+
+    return { resolvers, sources }
+  }
+
   describe('RootQuery', () => {
-    const dependeeSource = chai.spy(() => 'dependee value')
-    const dependee = isDependee(dependeeSource)
+    const setup = () => {
+      const typeDefs = `
+        type Query {
+          dependee: String
+          dependent: String
 
-    const secondDependeeSource = chai.spy(() => 'secondDependee value')
-    const secondDependee = isDependee(secondDependeeSource)
+          secondDependee: String
+          dependents: [String]
+        }
 
-    const dependentSource = chai.spy(dependee => 'dependent and ' + dependee)
-    const dependent = pipeResolvers(resolveDependee('dependee'), dependentSource)
+        schema {
+          query: Query
+        }
+      `
 
-    const dependentsSource = chai.spy(dependees => dependees)
-    const dependents = pipeResolvers(resolveDependees(['dependee', 'secondDependee']), dependentsSource)
+      const { resolvers, sources } = setupResolvers()
 
-    const typeDefs = `
-    type Query {
-      dependee: String
-      dependent: String
+      const schema = makeExecutableSchema({
+        typeDefs,
+        resolvers: { Query: resolvers }
+      })
 
-      secondDependee: String
-      dependents: [String]
+      return { schema, resolvers, sources }
     }
-
-    schema {
-      query: Query
-    }
-    `
-
-    const resolvers = {
-      Query: { dependee, dependent, secondDependee, dependents },
-    }
-
-    const schema = makeExecutableSchema({ typeDefs, resolvers })
-
-    afterEach(() => dependeeSource.reset())
-    afterEach(() => secondDependeeSource.reset())
-    afterEach(() => dependentSource.reset())
-    afterEach(() => dependentsSource.reset())
 
     describe('isDependee', () => {
       it('should resolve value normally', async () => {
+        const { schema, sources: { dependee } } = setup()
         const result = await graphql(schema, '{ dependee }', null, {})
         expect(result).to.have.deep.property('data.dependee', 'dependee value')
-        expect(dependeeSource).to.have.been.called.once
+        expect(dependee).to.have.been.called.once
       })
 
       it('should throw when context is not an object', async () => {
+        const { schema } = setup()
         const result = await graphql(schema, '{ dependee }', null, null)
         expect(result).to.have.deep.property('errors.0.message').equal(
           'Some functionality requires context to be an object.'
@@ -67,34 +81,35 @@ describe('dependingResolvers', () => {
 
     describe('resolveDependee', () => {
       it('should resolve dependent when requiring both fields', async () => {
+        const { schema, sources: { dependee, dependent } } = setup()
         const result = await graphql(schema, '{ dependee, dependent }', null, {})
         expect(result).to.have.deep.property('data.dependent', 'dependent and dependee value')
-        expect(dependeeSource).to.have.been.called.once
-        expect(dependentSource).to.have.been.called.once
+        expect(dependee).to.have.been.called.once
+        expect(dependent).to.have.been.called.once
       })
 
       it('should resolve dependent when requiring only dependent', async () => {
+        const { schema, sources: { dependee, dependent } } = setup()
         const result = await graphql(schema, '{ dependent }', null, {})
         expect(result).to.have.deep.property('data.dependent', 'dependent and dependee value')
-        expect(dependeeSource).to.have.been.called.once
-        expect(dependentSource).to.have.been.called.once
+        expect(dependee).to.have.been.called.once
+        expect(dependent).to.have.been.called.once
       })
 
       it('should throw when depending on a non existing field', async () => {
+        const { schema } = setup()
+
         // @TODO: any API way to temporarily remove a field from the schema?
-        const dependee = schema._queryType._fields.dependee
         delete schema._queryType._fields.dependee
 
         const result = await graphql(schema, '{ dependent }', null, {})
         expect(result).to.have.deep.property('errors.0.message').equal(
           'Cannot get dependee "dependee" from field "dependent" on type "Query"'
         )
-
-        // Put field back.
-        schema._queryType._fields.dependee = dependee
       })
 
       it('should throw when context is not an object', async () => {
+        const { schema } = setup()
         const result = await graphql(schema, '{ dependent }', null, null)
         expect(result).to.have.deep.property('errors.0.message').equal(
           'Some functionality requires context to be an object.'
@@ -104,38 +119,39 @@ describe('dependingResolvers', () => {
 
     describe('resolveDependees', () => {
       it('should resolve dependents when requiring all fields', async () => {
+        const { schema, sources: { dependee, secondDependee, dependents } } = setup()
         const result = await graphql(schema, '{ dependee, secondDependee, dependents }', null, {})
         expect(result).to.have.deep.property('data.dependents.0', 'dependee value')
         expect(result).to.have.deep.property('data.dependents.1', 'secondDependee value')
-        expect(dependeeSource).to.have.been.called.once
-        expect(secondDependeeSource).to.have.been.called.once
-        expect(dependentsSource).to.have.been.called.once
+        expect(dependee).to.have.been.called.once
+        expect(secondDependee).to.have.been.called.once
+        expect(dependents).to.have.been.called.once
       })
 
       it('should resolve dependents when requiring only dependent field', async () => {
+        const { schema, sources: { dependee, secondDependee, dependents } } = setup()
         const result = await graphql(schema, '{ dependents }', null, {})
         expect(result).to.have.deep.property('data.dependents.0', 'dependee value')
         expect(result).to.have.deep.property('data.dependents.1', 'secondDependee value')
-        expect(dependeeSource).to.have.been.called.once
-        expect(secondDependeeSource).to.have.been.called.once
-        expect(dependentsSource).to.have.been.called.once
+        expect(dependee).to.have.been.called.once
+        expect(secondDependee).to.have.been.called.once
+        expect(dependents).to.have.been.called.once
       })
 
       it('should throw when depending on a non existing field', async () => {
+        const { schema } = setup()
+
         // @TODO: any API way to temporarily remove a field from the schema?
-        const dependee = schema._queryType._fields.dependee
         delete schema._queryType._fields.dependee
 
         const result = await graphql(schema, '{ dependents }', null, {})
         expect(result).to.have.deep.property('errors.0.message').equal(
           'Cannot get dependee "dependee" from field "dependents" on type "Query"'
         )
-
-        // Put field back.
-        schema._queryType._fields.dependee = dependee
       })
 
       it('should throw when context is not an object', async () => {
+        const { schema } = setup()
         const result = await graphql(schema, '{ dependents }', null, null)
         expect(result).to.have.deep.property('errors.0.message').equal(
           'Some functionality requires context to be an object.'
