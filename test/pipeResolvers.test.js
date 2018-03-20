@@ -41,10 +41,9 @@ describe('pipeResolvers', () => {
         .and.have.property('message', 'some returned error')
     })
 
-    it('should return thrown errors as normal values', () => {
+    it('should reject with thrown errors', () => {
       return expect(pipeResolvers(resolvers.thrownError)())
-        .to.eventually.be.an('error')
-        .and.have.property('message', 'some throw error')
+        .to.be.rejectedWith('some throw error')
     })
 
     it('should call resolver with all arguments received', async () => {
@@ -98,11 +97,13 @@ describe('pipeResolvers', () => {
     })
 
     it('should execute resolvers in a pipe until error throw', async () => {
-      const result = await pipeResolvers(
-        spyResolvers.empty,
-        spyResolvers.thrownError,
-        spyResolvers.string
-      )(1)
+      const result = await expect(
+        pipeResolvers(
+          spyResolvers.empty,
+          spyResolvers.thrownError,
+          spyResolvers.string
+        )(1)
+      ).to.be.rejectedWith('some throw error')
 
       expect(spyResolvers.empty).to.have.been.called.once.with(1)
       expect(spyResolvers.thrownError).to.have.been.called.once.with(undefined)

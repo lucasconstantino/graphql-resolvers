@@ -41,10 +41,9 @@ describe('combineResolvers', () => {
         .and.have.property('message', 'some returned error')
     })
 
-    it('should return thrown errors as normal values', () => {
+    it('should reject with thrown errors', () => {
       return expect(combineResolvers(resolvers.thrownError)())
-        .to.eventually.be.an('error')
-        .and.have.property('message', 'some throw error')
+        .to.be.rejectedWith('some throw error')
     })
 
     it('should call resolver with all arguments received', async () => {
