@@ -213,7 +213,9 @@ describe('dependingResolvers', () => {
       const schema = makeExecutableSchema({
         typeDefs,
         resolvers: {
-          Query: { type: () => ({}) },
+          Query: { type: () => ({
+            id: "TYPE_ID"
+          }) },
           Type: resolvers,
         }
       })
@@ -306,7 +308,9 @@ describe('dependingResolvers', () => {
         expect(result).to.have.deep.property('data.type.dependents.0', 'dependee value')
         expect(result).to.have.deep.property('data.type.dependents.1', 'delayedDependee value')
         expect(dependee).to.have.been.called.once
+        expect(dependee).to.have.been.called.with({ id: "TYPE_ID" })
         expect(delayedDependee).to.have.been.called.once
+        expect(delayedDependee).to.have.been.called.with({ id: "TYPE_ID" })
         expect(dependents).to.have.been.called.once
       })
 
@@ -316,7 +320,9 @@ describe('dependingResolvers', () => {
         expect(result).to.have.deep.property('data.type.dependents.0', 'dependee value')
         expect(result).to.have.deep.property('data.type.dependents.1', 'delayedDependee value')
         expect(dependee).to.have.been.called.once
+        expect(dependee).to.have.been.called.with({ id: "TYPE_ID" })
         expect(delayedDependee).to.have.been.called.once
+        expect(delayedDependee).to.have.been.called.with({ id: "TYPE_ID" })
         expect(dependents).to.have.been.called.once
       })
 

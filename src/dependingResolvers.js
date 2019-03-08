@@ -59,15 +59,18 @@ export const resolveDependee = dependeeName => combineResolvers(
     // dependees have been initialized.
     nextTick,
 
-    // Find any currently resolved dependee.
-    (root, args, { _dependees = [] }, info) => _dependees
-      .filter(({ path: { prev } }) => deepEqual(prev, info.path.prev))
-      .find(({ path: { key } }) => key === dependeeName),
+    (root, args, context, info) => {
+      const { _dependees = [] } = context
+      // Find any currently resolved dependee.
+      const resolved = _dependees
+        .filter(({ path: { prev } }) => deepEqual(prev, info.path.prev))
+        .find(({ path: { key } }) => key === dependeeName)
 
-    // Run field resolution, if resolved value was not found.
-    (resolved, args, context, info) => resolved === skip
-      ? info.parentType._fields[dependeeName].resolve(info.rootValue, args, context, info)
-      : resolved.value,
+      // Run field resolution, if resolved value was not found.
+      return resolved === skip
+        ? info.parentType._fields[dependeeName].resolve(root, args, context, info)
+        : resolved.value
+    }
   ),
 )
 
