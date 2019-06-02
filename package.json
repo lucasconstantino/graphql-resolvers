@@ -35,6 +35,10 @@
     }
   },
   "lint-staged": {
+    "*.js": [
+      "prettier-eslint --write",
+      "git add"
+    ],
     "package.json": [
       "sort-package-json",
       "git add"
@@ -64,6 +68,7 @@
     "istanbul": "^1.1.0-alpha.1",
     "lint-staged": "^8.1.7",
     "mocha": "^3.1.2",
+    "prettier-eslint-cli": "^4.7.1",
     "ramda": "^0.23.0",
     "sort-package-json": "^1.22.1"
   }
