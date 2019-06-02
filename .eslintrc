@@ -3,5 +3,8 @@
   "rules": {
     "no-unused-expressions": "off",
     "no-sequences": "off"
+  },
+  "env": {
+    "jest": true
   }
 }
