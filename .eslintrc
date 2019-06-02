@@ -1,6 +1,7 @@
 {
-  "extends": [ "taller" ],
+  "extends": ["taller"],
   "rules": {
-    "no-unused-expressions": "off"
+    "no-unused-expressions": "off",
+    "no-sequences": "off"
   }
 }
