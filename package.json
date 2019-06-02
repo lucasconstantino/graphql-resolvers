@@ -9,7 +9,8 @@
     "test": "_mocha --require babel-register --require babel-polyfill",
     "coverage": "istanbul cover _mocha -- --require babel-register --require babel-polyfill",
     "codecov": "yarn coverage && codecov",
-    "prepublish": "npm test && npm run lint && npm run compile"
+    "prepublish": "yarn qa && yarn compile",
+    "qa": "yarn test && yarn lint"
   },
   "keywords": [
     "graphql",
