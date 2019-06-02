@@ -19,6 +19,12 @@
     "functional",
     "resolver"
   ],
+  "lint-staged": {
+    "package.json": [
+      "sort-package-json",
+      "git add"
+    ]
+  },
   "author": "Lucas Constantino Silva <lucasconstantinosilva@gmail.com>",
   "license": "MIT",
   "devDependencies": {
