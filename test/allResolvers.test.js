@@ -7,7 +7,7 @@ describe('allResolvers', () => {
   const numberResolver = jest.fn(() => 2)
   const pipedResolver = jest.fn(pipeResolvers(stringResolver, numberResolver))
 
-  beforeEach(() => jest.clearAllMocks())
+  beforeEach(jest.clearAllMocks)
 
   it('should resolve to an empty array when resolvers array is empty', () =>
     expect(allResolvers([])()).resolves.toEqual([]))
