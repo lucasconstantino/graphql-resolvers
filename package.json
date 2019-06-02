@@ -23,11 +23,10 @@
   "scripts": {
     "codecov": "yarn coverage && codecov",
     "compile": "babel src -d lib",
-    "coverage": "istanbul cover _mocha -- --require babel-register --require babel-polyfill",
+    "coverage": "istanbul cover _mocha -- --require @babel/register --require @babel/polyfill",
     "lint": "eslint index.js src",
-    "prepublish": "yarn qa && yarn compile",
     "qa": "yarn test && yarn lint",
-    "test": "_mocha --require babel-register --require babel-polyfill"
+    "test": "_mocha --require @babel/register --require @babel/polyfill"
   },
   "husky": {
     "hooks": {
@@ -49,11 +48,13 @@
     "object-path": "^0.11.4"
   },
   "devDependencies": {
-    "babel-cli": "^6.18.0",
-    "babel-core": "^6.18.2",
-    "babel-polyfill": "^6.23.0",
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/polyfill": "^7.4.4",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/register": "^7.4.4",
+    "babel-core": "^7.0.0-bridge.0",
     "babel-preset-taller": "^0.1.1",
-    "babel-register": "^6.18.0",
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
     "chai-spies": "^0.7.1",
