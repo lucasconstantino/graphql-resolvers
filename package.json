@@ -20,9 +20,6 @@
   "license": "MIT",
   "author": "Lucas Constantino Silva <lucasconstantinosilva@gmail.com>",
   "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
   "scripts": {
     "codecov": "yarn coverage && codecov",
     "compile": "babel src -d lib",
