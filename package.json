@@ -24,12 +24,14 @@
     "codecov": "yarn coverage && codecov",
     "compile": "babel src -d lib",
     "lint": "eslint index.js src test",
+    "prepublish": "yarn qa && yarn compile",
     "qa": "yarn test && yarn lint",
     "test": "jest"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "pre-push": "yarn qa"
     }
   },
   "lint-staged": {
