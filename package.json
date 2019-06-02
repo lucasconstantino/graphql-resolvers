@@ -43,6 +43,11 @@
       "git add"
     ]
   },
+  "jest": {
+    "setupFilesAfterEnv": [
+      "jest-chain"
+    ]
+  },
   "dependencies": {
     "@babel/runtime": "^7.4.5",
     "deep-equal": "^1.0.1",
@@ -51,11 +56,13 @@
   "devDependencies": {
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.0",
+    "@babel/plugin-transform-regenerator": "^7.4.5",
     "@babel/plugin-transform-runtime": "^7.4.4",
     "@babel/polyfill": "^7.4.4",
     "@babel/preset-env": "^7.4.5",
     "@babel/register": "^7.4.4",
     "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^24.8.0",
     "babel-preset-taller": "^0.1.1",
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
@@ -69,6 +76,8 @@
     "graphql-tools": "^0.11.0",
     "husky": "^2.3.0",
     "istanbul": "^1.1.0-alpha.1",
+    "jest": "^24.8.0",
+    "jest-chain": "^1.1.2",
     "lint-staged": "^8.1.7",
     "mocha": "^3.1.2",
     "prettier-eslint-cli": "^4.7.1",
