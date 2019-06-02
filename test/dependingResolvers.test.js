@@ -1,7 +1,4 @@
 // import { last, length, groupBy, pipe, prop, sortBy, values } from 'ramda'
-import chai, { expect } from 'chai'
-import spies from 'chai-spies'
-
 import { graphql } from 'graphql'
 import { makeExecutableSchema } from 'graphql-tools'
 
@@ -11,9 +8,6 @@ import {
   resolveDependee,
   resolveDependees
 } from '../src/dependingResolvers'
-
-// Apply chai extensions.
-chai.use(spies)
 
 /**
  * Helper method to delay a value retriaval.
@@ -30,19 +24,19 @@ const setupResolvers = (getter = v => v) => {
   const resolvers = {}
   const sources = {}
 
-  sources.dependee = chai.spy(() => 'dependee value')
+  sources.dependee = jest.fn(() => 'dependee value')
   resolvers.dependee = isDependee(sources.dependee)
 
-  sources.delayedDependee = chai.spy(() => delayed('delayedDependee value'))
+  sources.delayedDependee = jest.fn(() => delayed('delayedDependee value'))
   resolvers.delayedDependee = isDependee(sources.delayedDependee)
 
-  sources.dependent = chai.spy(dependee => 'dependent and ' + dependee)
+  sources.dependent = jest.fn(dependee => 'dependent and ' + dependee)
   resolvers.dependent = pipeResolvers(
     resolveDependee('dependee'),
     sources.dependent
   )
 
-  sources.dependentOnDelayed = chai.spy(
+  sources.dependentOnDelayed = jest.fn(
     delayedDependee => 'dependentOnDelayed and ' + delayedDependee
   )
   resolvers.dependentOnDelayed = pipeResolvers(
@@ -50,7 +44,7 @@ const setupResolvers = (getter = v => v) => {
     sources.dependentOnDelayed
   )
 
-  sources.dependents = chai.spy(dependees => dependees)
+  sources.dependents = jest.fn(dependees => dependees)
   resolvers.dependents = pipeResolvers(
     resolveDependees(['dependee', 'delayedDependee']),
     sources.dependents
@@ -95,8 +89,8 @@ describe('dependingResolvers', () => {
           sources: { dependee }
         } = setup()
         const result = await graphql(schema, '{ dependee }', null, {})
-        expect(result).to.have.deep.property('data.dependee', 'dependee value')
-        expect(dependee).to.have.been.called.once
+        expect(result).toHaveProperty('data.dependee', 'dependee value')
+        expect(dependee).toHaveBeenCalledTimes(1)
       })
 
       it('should resolve value normally, even when resolved to a promise', async () => {
@@ -105,19 +99,20 @@ describe('dependingResolvers', () => {
           sources: { delayedDependee }
         } = setup()
         const result = await graphql(schema, '{ delayedDependee }', null, {})
-        expect(result).to.have.deep.property(
+        expect(result).toHaveProperty(
           'data.delayedDependee',
           'delayedDependee value'
         )
-        expect(delayedDependee).to.have.been.called.once
+        expect(delayedDependee).toHaveBeenCalledTimes(1)
       })
 
       it('should throw when context is not an object', async () => {
         const { schema } = setup()
         const result = await graphql(schema, '{ dependee }', null, null)
-        expect(result)
-          .to.have.deep.property('errors.0.message')
-          .equal('Some functionality requires context to be an object.')
+        expect(result).toHaveProperty(
+          'errors.0.message',
+          'Some functionality requires context to be an object.'
+        )
       })
     })
 
@@ -133,12 +128,12 @@ describe('dependingResolvers', () => {
           null,
           {}
         )
-        expect(result).to.have.deep.property(
+        expect(result).toHaveProperty(
           'data.dependent',
           'dependent and dependee value'
         )
-        expect(dependee).to.have.been.called.once
-        expect(dependent).to.have.been.called.once
+        expect(dependee).toHaveBeenCalledTimes(1)
+        expect(dependent).toHaveBeenCalledTimes(1)
       })
 
       it('should resolve dependent when requiring only dependent', async () => {
@@ -147,12 +142,12 @@ describe('dependingResolvers', () => {
           sources: { dependee, dependent }
         } = setup()
         const result = await graphql(schema, '{ dependent }', null, {})
-        expect(result).to.have.deep.property(
+        expect(result).toHaveProperty(
           'data.dependent',
           'dependent and dependee value'
         )
-        expect(dependee).to.have.been.called.once
-        expect(dependent).to.have.been.called.once
+        expect(dependee).toHaveBeenCalledTimes(1)
+        expect(dependent).toHaveBeenCalledTimes(1)
       })
 
       it('should throw when depending on a non existing field', async () => {
@@ -162,19 +157,19 @@ describe('dependingResolvers', () => {
         delete schema._queryType._fields.dependee
 
         const result = await graphql(schema, '{ dependent }', null, {})
-        expect(result)
-          .to.have.deep.property('errors.0.message')
-          .equal(
-            'Cannot get dependee "dependee" from field "dependent" on type "Query"'
-          )
+        expect(result).toHaveProperty(
+          'errors.0.message',
+          'Cannot get dependee "dependee" from field "dependent" on type "Query"'
+        )
       })
 
       it('should throw when context is not an object', async () => {
         const { schema } = setup()
         const result = await graphql(schema, '{ dependent }', null, null)
-        expect(result)
-          .to.have.deep.property('errors.0.message')
-          .equal('Some functionality requires context to be an object.')
+        expect(result).toHaveProperty(
+          'errors.0.message',
+          'Some functionality requires context to be an object.'
+        )
       })
 
       it('should resolve dependee only once, even when it resolves to a promise', async () => {
@@ -189,12 +184,12 @@ describe('dependingResolvers', () => {
           {}
         )
 
-        expect(result).to.have.deep.property(
+        expect(result).toHaveProperty(
           'data.dependentOnDelayed',
           'dependentOnDelayed and delayedDependee value'
         )
-        expect(delayedDependee).to.have.been.called.once
-        expect(dependentOnDelayed).to.have.been.called.once
+        expect(delayedDependee).toHaveBeenCalledTimes(1)
+        expect(dependentOnDelayed).toHaveBeenCalledTimes(1)
       })
     })
 
@@ -210,17 +205,14 @@ describe('dependingResolvers', () => {
           null,
           {}
         )
-        expect(result).to.have.deep.property(
-          'data.dependents.0',
-          'dependee value'
-        )
-        expect(result).to.have.deep.property(
+        expect(result).toHaveProperty('data.dependents.0', 'dependee value')
+        expect(result).toHaveProperty(
           'data.dependents.1',
           'delayedDependee value'
         )
-        expect(dependee).to.have.been.called.once
-        expect(delayedDependee).to.have.been.called.once
-        expect(dependents).to.have.been.called.once
+        expect(dependee).toHaveBeenCalledTimes(1)
+        expect(delayedDependee).toHaveBeenCalledTimes(1)
+        expect(dependents).toHaveBeenCalledTimes(1)
       })
 
       it('should resolve dependents when requiring only dependent field', async () => {
@@ -229,17 +221,14 @@ describe('dependingResolvers', () => {
           sources: { dependee, delayedDependee, dependents }
         } = setup()
         const result = await graphql(schema, '{ dependents }', null, {})
-        expect(result).to.have.deep.property(
-          'data.dependents.0',
-          'dependee value'
-        )
-        expect(result).to.have.deep.property(
+        expect(result).toHaveProperty('data.dependents.0', 'dependee value')
+        expect(result).toHaveProperty(
           'data.dependents.1',
           'delayedDependee value'
         )
-        expect(dependee).to.have.been.called.once
-        expect(delayedDependee).to.have.been.called.once
-        expect(dependents).to.have.been.called.once
+        expect(dependee).toHaveBeenCalledTimes(1)
+        expect(delayedDependee).toHaveBeenCalledTimes(1)
+        expect(dependents).toHaveBeenCalledTimes(1)
       })
 
       it('should throw when depending on a non existing field', async () => {
@@ -249,19 +238,19 @@ describe('dependingResolvers', () => {
         delete schema._queryType._fields.dependee
 
         const result = await graphql(schema, '{ dependents }', null, {})
-        expect(result)
-          .to.have.deep.property('errors.0.message')
-          .equal(
-            'Cannot get dependee "dependee" from field "dependents" on type "Query"'
-          )
+        expect(result).toHaveProperty(
+          'errors.0.message',
+          'Cannot get dependee "dependee" from field "dependents" on type "Query"'
+        )
       })
 
       it('should throw when context is not an object', async () => {
         const { schema } = setup()
         const result = await graphql(schema, '{ dependents }', null, null)
-        expect(result)
-          .to.have.deep.property('errors.0.message')
-          .equal('Some functionality requires context to be an object.')
+        expect(result).toHaveProperty(
+          'errors.0.message',
+          'Some functionality requires context to be an object.'
+        )
       })
     })
   })
@@ -312,11 +301,8 @@ describe('dependingResolvers', () => {
           sources: { dependee }
         } = setup()
         const result = await graphql(schema, '{ type { dependee } }', null, {})
-        expect(result).to.have.deep.property(
-          'data.type.dependee',
-          'dependee value'
-        )
-        expect(dependee).to.have.been.called.once
+        expect(result).toHaveProperty('data.type.dependee', 'dependee value')
+        expect(dependee).toHaveBeenCalledTimes(1)
       })
 
       it('should resolve value normally, even when resolved to a promise', async () => {
@@ -330,11 +316,11 @@ describe('dependingResolvers', () => {
           null,
           {}
         )
-        expect(result).to.have.deep.property(
+        expect(result).toHaveProperty(
           'data.type.delayedDependee',
           'delayedDependee value'
         )
-        expect(delayedDependee).to.have.been.called.once
+        expect(delayedDependee).toHaveBeenCalledTimes(1)
       })
 
       it('should resolve value normally, even when resolved to a promise', async () => {
@@ -348,11 +334,11 @@ describe('dependingResolvers', () => {
           null,
           {}
         )
-        expect(result).to.have.deep.property(
+        expect(result).toHaveProperty(
           'data.type.delayedDependee',
           'delayedDependee value'
         )
-        expect(delayedDependee).to.have.been.called.once
+        expect(delayedDependee).toHaveBeenCalledTimes(1)
       })
 
       it('should throw when context is not an object', async () => {
@@ -363,9 +349,10 @@ describe('dependingResolvers', () => {
           null,
           null
         )
-        expect(result)
-          .to.have.deep.property('errors.0.message')
-          .equal('Some functionality requires context to be an object.')
+        expect(result).toHaveProperty(
+          'errors.0.message',
+          'Some functionality requires context to be an object.'
+        )
       })
     })
 
@@ -381,12 +368,12 @@ describe('dependingResolvers', () => {
           null,
           {}
         )
-        expect(result).to.have.deep.property(
+        expect(result).toHaveProperty(
           'data.type.dependent',
           'dependent and dependee value'
         )
-        expect(dependee).to.have.been.called.once
-        expect(dependent).to.have.been.called.once
+        expect(dependee).toHaveBeenCalledTimes(1)
+        expect(dependent).toHaveBeenCalledTimes(1)
       })
 
       it('should resolve dependent when requiring only dependent', async () => {
@@ -395,12 +382,12 @@ describe('dependingResolvers', () => {
           sources: { dependee, dependent }
         } = setup()
         const result = await graphql(schema, '{ type { dependent } }', null, {})
-        expect(result).to.have.deep.property(
+        expect(result).toHaveProperty(
           'data.type.dependent',
           'dependent and dependee value'
         )
-        expect(dependee).to.have.been.called.once
-        expect(dependent).to.have.been.called.once
+        expect(dependee).toHaveBeenCalledTimes(1)
+        expect(dependent).toHaveBeenCalledTimes(1)
       })
 
       it('should throw when depending on a non existing field', async () => {
@@ -410,11 +397,10 @@ describe('dependingResolvers', () => {
         delete schema._typeMap.Type._fields.dependee
 
         const result = await graphql(schema, '{ type { dependent } }', null, {})
-        expect(result)
-          .to.have.deep.property('errors.0.message')
-          .equal(
-            'Cannot get dependee "dependee" from field "dependent" on type "Type"'
-          )
+        expect(result).toHaveProperty(
+          'errors.0.message',
+          'Cannot get dependee "dependee" from field "dependent" on type "Type"'
+        )
       })
 
       it('should throw when context is not an object', async () => {
@@ -425,9 +411,10 @@ describe('dependingResolvers', () => {
           null,
           null
         )
-        expect(result)
-          .to.have.deep.property('errors.0.message')
-          .equal('Some functionality requires context to be an object.')
+        expect(result).toHaveProperty(
+          'errors.0.message',
+          'Some functionality requires context to be an object.'
+        )
       })
 
       it('should resolve dependee only once, even when it resolves to a promise', async () => {
@@ -442,12 +429,12 @@ describe('dependingResolvers', () => {
           {}
         )
 
-        expect(result).to.have.deep.property(
+        expect(result).toHaveProperty(
           'data.type.dependentOnDelayed',
           'dependentOnDelayed and delayedDependee value'
         )
-        expect(delayedDependee).to.have.been.called.once
-        expect(dependentOnDelayed).to.have.been.called.once
+        expect(delayedDependee).toHaveBeenCalledTimes(1)
+        expect(dependentOnDelayed).toHaveBeenCalledTimes(1)
       })
     })
 
@@ -463,19 +450,29 @@ describe('dependingResolvers', () => {
           null,
           {}
         )
-        expect(result).to.have.deep.property(
+        expect(result).toHaveProperty(
           'data.type.dependents.0',
           'dependee value'
         )
-        expect(result).to.have.deep.property(
+        expect(result).toHaveProperty(
           'data.type.dependents.1',
           'delayedDependee value'
         )
-        expect(dependee).to.have.been.called.once
-        expect(dependee).to.have.been.called.with({ id: 'TYPE_ID' })
-        expect(delayedDependee).to.have.been.called.once
-        expect(delayedDependee).to.have.been.called.with({ id: 'TYPE_ID' })
-        expect(dependents).to.have.been.called.once
+        expect(dependee).toHaveBeenCalledTimes(1)
+        expect(dependee).toHaveBeenCalledWith(
+          { id: 'TYPE_ID' },
+          expect.anything(),
+          expect.anything(),
+          expect.anything()
+        )
+        expect(delayedDependee).toHaveBeenCalledTimes(1)
+        expect(delayedDependee).toHaveBeenCalledWith(
+          { id: 'TYPE_ID' },
+          expect.anything(),
+          expect.anything(),
+          expect.anything()
+        )
+        expect(dependents).toHaveBeenCalledTimes(1)
       })
 
       it('should resolve dependents when requiring only dependent field', async () => {
@@ -483,25 +480,38 @@ describe('dependingResolvers', () => {
           schema,
           sources: { dependee, delayedDependee, dependents }
         } = setup()
+
         const result = await graphql(
           schema,
           '{ type { dependents } }',
           null,
           {}
         )
-        expect(result).to.have.deep.property(
+        expect(result).toHaveProperty(
           'data.type.dependents.0',
           'dependee value'
         )
-        expect(result).to.have.deep.property(
+
+        expect(result).toHaveProperty(
           'data.type.dependents.1',
           'delayedDependee value'
         )
-        expect(dependee).to.have.been.called.once
-        expect(dependee).to.have.been.called.with({ id: 'TYPE_ID' })
-        expect(delayedDependee).to.have.been.called.once
-        expect(delayedDependee).to.have.been.called.with({ id: 'TYPE_ID' })
-        expect(dependents).to.have.been.called.once
+
+        expect(dependee).toHaveBeenCalledTimes(1)
+        expect(dependee).toHaveBeenCalledWith(
+          { id: 'TYPE_ID' },
+          expect.anything(),
+          expect.anything(),
+          expect.anything()
+        )
+        expect(delayedDependee).toHaveBeenCalledTimes(1)
+        expect(delayedDependee).toHaveBeenCalledWith(
+          { id: 'TYPE_ID' },
+          expect.anything(),
+          expect.anything(),
+          expect.anything()
+        )
+        expect(dependents).toHaveBeenCalledTimes(1)
       })
 
       it('should throw when depending on a non existing field', async () => {
@@ -516,11 +526,10 @@ describe('dependingResolvers', () => {
           null,
           {}
         )
-        expect(result)
-          .to.have.deep.property('errors.0.message')
-          .equal(
-            'Cannot get dependee "dependee" from field "dependents" on type "Type"'
-          )
+        expect(result).toHaveProperty(
+          'errors.0.message',
+          'Cannot get dependee "dependee" from field "dependents" on type "Type"'
+        )
       })
 
       it('should throw when context is not an object', async () => {
@@ -531,9 +540,10 @@ describe('dependingResolvers', () => {
           null,
           null
         )
-        expect(result)
-          .to.have.deep.property('errors.0.message')
-          .equal('Some functionality requires context to be an object.')
+        expect(result).toHaveProperty(
+          'errors.0.message',
+          'Some functionality requires context to be an object.'
+        )
       })
     })
   })
