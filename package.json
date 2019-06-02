@@ -2,31 +2,51 @@
   "name": "graphql-resolvers",
   "version": "0.3.3",
   "description": "Resolver composition library for GraphQL.",
-  "main": "index.js",
-  "scripts": {
-    "compile": "babel src -d lib",
-    "lint": "eslint index.js src",
-    "test": "_mocha --require babel-register --require babel-polyfill",
-    "coverage": "istanbul cover _mocha -- --require babel-register --require babel-polyfill",
-    "codecov": "yarn coverage && codecov",
-    "prepublish": "yarn qa && yarn compile",
-    "qa": "yarn test && yarn lint"
-  },
   "keywords": [
-    "graphql",
     "apollo",
     "composition",
     "functional",
+    "graphql",
     "resolver"
   ],
+  "homepage": "https://github.com/lucasconstantino/graphql-resolvers#readme",
+  "bugs": {
+    "url": "https://github.com/lucasconstantino/graphql-resolvers/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lucasconstantino/graphql-resolvers.git"
+  },
+  "license": "MIT",
+  "author": "Lucas Constantino Silva <lucasconstantinosilva@gmail.com>",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "codecov": "yarn coverage && codecov",
+    "compile": "babel src -d lib",
+    "coverage": "istanbul cover _mocha -- --require babel-register --require babel-polyfill",
+    "lint": "eslint index.js src",
+    "prepublish": "yarn qa && yarn compile",
+    "qa": "yarn test && yarn lint",
+    "test": "_mocha --require babel-register --require babel-polyfill"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
   "lint-staged": {
     "package.json": [
       "sort-package-json",
       "git add"
     ]
   },
-  "author": "Lucas Constantino Silva <lucasconstantinosilva@gmail.com>",
-  "license": "MIT",
+  "dependencies": {
+    "deep-equal": "^1.0.1",
+    "object-path": "^0.11.4"
+  },
   "devDependencies": {
     "babel-cli": "^6.18.0",
     "babel-core": "^6.18.2",
@@ -49,20 +69,5 @@
     "mocha": "^3.1.2",
     "ramda": "^0.23.0",
     "sort-package-json": "^1.22.1"
-  },
-  "dependencies": {
-    "deep-equal": "^1.0.1",
-    "object-path": "^0.11.4"
-  },
-  "directories": {
-    "test": "test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/lucasconstantino/graphql-resolvers.git"
-  },
-  "bugs": {
-    "url": "https://github.com/lucasconstantino/graphql-resolvers/issues"
-  },
-  "homepage": "https://github.com/lucasconstantino/graphql-resolvers#readme"
+  }
 }
