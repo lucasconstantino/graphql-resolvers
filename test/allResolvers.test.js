@@ -18,26 +18,25 @@ describe('allResolvers', () => {
   beforeEach(() => pipedResolver.reset())
 
   it('should resolve to an empty array when resolvers array is empty', () =>
-    expect(allResolvers([])()).to.eventually.deep.equal([])
-  )
+    expect(allResolvers([])()).to.eventually.deep.equal([]))
 
   it('should resolve a single resolver', () =>
-    expect(allResolvers([stringResolver])()).to.eventually.deep.equal(['string'])
-  )
+    expect(allResolvers([stringResolver])()).to.eventually.deep.equal([
+      'string'
+    ]))
 
   it('should resolve multiple resolvers', () =>
-    expect(allResolvers([stringResolver, numberResolver])())
-      .to.eventually.deep.equal(['string', 2])
-  )
+    expect(
+      allResolvers([stringResolver, numberResolver])()
+    ).to.eventually.deep.equal(['string', 2]))
 
   it('should resolve composed resolvers', () =>
-    expect(allResolvers([stringResolver, numberResolver, pipedResolver])())
-      .to.eventually.deep.equal(['string', 2, 2])
-  )
+    expect(
+      allResolvers([stringResolver, numberResolver, pipedResolver])()
+    ).to.eventually.deep.equal(['string', 2, 2]))
 
   it('should throw when no argument is provided', () =>
-    expect(() => allResolvers()()).to.throw
-  )
+    expect(() => allResolvers()()).to.throw)
 
   it('should pass any argument to the resolvers', async () => {
     await allResolvers([stringResolver, numberResolver])(1, 2, 3, 4, 5)
