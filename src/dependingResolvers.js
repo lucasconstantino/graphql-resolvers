@@ -1,4 +1,3 @@
-
 import { push } from 'object-path'
 import deepEqual from 'deep-equal'
 
@@ -13,10 +12,9 @@ import { contextMustBeObject } from './miscResolvers'
  */
 const saveDependee = combineResolvers(
   contextMustBeObject,
-  (value, args, context, info) => ((
-    push(context, '_dependees', { path: info.path, value }),
-    value
-  )),
+  (value, args, context, info) => (
+    push(context, '_dependees', { path: info.path, value }), value
+  )
 )
 
 /**
@@ -38,11 +36,17 @@ export const isDependee = resolver => (root, ...args) =>
  * @param {String} dependeeName The name of the dependee to check the parent against
  * @return {Function} Resolver to error when no dependee is found.
  */
-const dependeeExists = dependeeName =>
-  (root, args, context, { fieldName, parentType: { _fields, name: parent } }) =>
-    !_fields[dependeeName]
-      ? new Error(`Cannot get dependee "${dependeeName}" from field "${fieldName}" on type "${parent}"`)
-      : skip
+const dependeeExists = dependeeName => (
+  root,
+  args,
+  context,
+  { fieldName, parentType: { _fields, name: parent } }
+) =>
+  !_fields[dependeeName]
+    ? new Error(
+        `Cannot get dependee "${dependeeName}" from field "${fieldName}" on type "${parent}"`
+      )
+    : skip
 
 /**
  * Resolver implementation to retrieve the resolved value of a dependee sibling field.
@@ -51,28 +55,34 @@ const dependeeExists = dependeeName =>
  * @param {Function} resolver Resolver implemenatation.
  * @return {Function} dependee resolver.
  */
-export const resolveDependee = dependeeName => combineResolvers(
-  contextMustBeObject,
-  dependeeExists(dependeeName),
-  pipeResolvers(
-    // Make sure dependent resolvers occur after
-    // dependees have been initialized.
-    nextTick,
+export const resolveDependee = dependeeName =>
+  combineResolvers(
+    contextMustBeObject,
+    dependeeExists(dependeeName),
+    pipeResolvers(
+      // Make sure dependent resolvers occur after
+      // dependees have been initialized.
+      nextTick,
 
-    (root, args, context, info) => {
-      const { _dependees = [] } = context
-      // Find any currently resolved dependee.
-      const resolved = _dependees
-        .filter(({ path: { prev } }) => deepEqual(prev, info.path.prev))
-        .find(({ path: { key } }) => key === dependeeName)
+      (root, args, context, info) => {
+        const { _dependees = [] } = context
+        // Find any currently resolved dependee.
+        const resolved = _dependees
+          .filter(({ path: { prev } }) => deepEqual(prev, info.path.prev))
+          .find(({ path: { key } }) => key === dependeeName)
 
-      // Run field resolution, if resolved value was not found.
-      return resolved === skip
-        ? info.parentType._fields[dependeeName].resolve(root, args, context, info)
-        : resolved.value
-    }
-  ),
-)
+        // Run field resolution, if resolved value was not found.
+        return resolved === skip
+          ? info.parentType._fields[dependeeName].resolve(
+              root,
+              args,
+              context,
+              info
+            )
+          : resolved.value
+      }
+    )
+  )
 
 /**
  * Resolver implementation to retrieve the resolved value of multiple dependee sibling fields.
@@ -81,7 +91,8 @@ export const resolveDependee = dependeeName => combineResolvers(
  * @param {Function} resolver Resolver implemenatation.
  * @return {Function} dependee resolver.
  */
-export const resolveDependees = dependeeNames => combineResolvers(
-  contextMustBeObject,
-  allResolvers(dependeeNames.map(resolveDependee)),
-)
+export const resolveDependees = dependeeNames =>
+  combineResolvers(
+    contextMustBeObject,
+    allResolvers(dependeeNames.map(resolveDependee))
+  )

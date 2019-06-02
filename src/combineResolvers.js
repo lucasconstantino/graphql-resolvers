@@ -1,4 +1,3 @@
-
 import { skip } from './utils'
 
 /**
@@ -7,8 +6,9 @@ import { skip } from './utils'
  * @param {[Function]} ...funcs Resolver implementations.
  * @return {Promise}.
  */
-export const combineResolvers = (...funcs) => (...args) => funcs.reduce(
-  (prevPromise, resolver) => prevPromise.then(
-    prev => prev === skip ? resolver(...args) : prev
-  ), Promise.resolve()
-)
+export const combineResolvers = (...funcs) => (...args) =>
+  funcs.reduce(
+    (prevPromise, resolver) =>
+      prevPromise.then(prev => (prev === skip ? resolver(...args) : prev)),
+    Promise.resolve()
+  )
