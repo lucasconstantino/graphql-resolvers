@@ -1,8 +1,6 @@
 import { expect } from 'chai'
 import { skip, nextTick } from '../src/utils'
 
-const nil = () => {}
-
 describe('utils', () => {
   describe('skip', () => {
     it('should equal undefined', () => {

@@ -54,8 +54,8 @@ describe('miscResolvers', () => {
       expect(contextMustBeObject(null, null, {})).to.be.equal(skip)
       expect(contextMustBeObject(null, null, [])).to.be.equal(skip)
       expect(contextMustBeObject(null, null, () => {})).to.be.equal(skip)
-      // eslint-disable-next-line no-new-wrappers
       expect(
+        // eslint-disable-next-line no-new-wrappers
         contextMustBeObject(null, null, new String('string object'))
       ).to.be.equal(skip)
     })

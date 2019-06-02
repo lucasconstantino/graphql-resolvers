@@ -24,7 +24,7 @@
     "codecov": "yarn coverage && codecov",
     "compile": "babel src -d lib",
     "coverage": "istanbul cover _mocha -- --require @babel/register --require @babel/polyfill",
-    "lint": "eslint index.js src",
+    "lint": "eslint index.js src test",
     "qa": "yarn test && yarn lint",
     "test": "_mocha --require @babel/register --require @babel/polyfill"
   },
