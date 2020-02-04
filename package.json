@@ -1,6 +1,6 @@
 {
   "name": "graphql-resolvers",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Resolver composition library for GraphQL.",
   "keywords": [
     "apollo",
