@@ -14,14 +14,14 @@ export const resolvers = {
   error: () => new Error('some returned error'),
   thrownError: () => {
     throw new Error('some throw error')
-  }
+  },
 }
 
 // Wrap every resolver in promise resolvers for tests.
 export const promiseResolvers = Object.keys(resolvers).reduce(
   (result, key) =>
     Object.assign(result, {
-      [key]: async (...args) => resolvers[key](...args)
+      [key]: async (...args) => await resolvers[key](...args),
     }),
   {}
 )
@@ -30,7 +30,7 @@ export const promiseResolvers = Object.keys(resolvers).reduce(
 export const spyResolvers = Object.keys(resolvers).reduce(
   (result, key) =>
     Object.assign(result, {
-      [key]: jest.fn(resolvers[key])
+      [key]: jest.fn(resolvers[key]),
     }),
   {}
 )

@@ -1,6 +1,11 @@
 {
-  "extends": ["taller"],
+  "extends": ["@strv/node"],
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "sourceType": "module"
+  },
   "rules": {
+    "node/no-unsupported-features/es-syntax": "off",
     "no-unused-expressions": "off",
     "no-sequences": "off"
   },

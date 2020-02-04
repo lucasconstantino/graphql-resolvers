@@ -6,7 +6,11 @@ import { makeExecutableSchema } from 'graphql-tools'
 
 import { pipeResolvers } from '../src/pipeResolvers'
 
-import { resolvers, promiseResolvers, spyResolvers } from './helpers'
+import {
+  resolvers as utilResolvers,
+  promiseResolvers,
+  spyResolvers,
+} from './helpers'
 
 describe('pipeResolvers', () => {
   beforeEach(jest.clearAllMocks)
@@ -15,7 +19,12 @@ describe('pipeResolvers', () => {
     it('should return a function once combined', () => {
       expect(typeof pipeResolvers()).toEqual('function')
       expect(typeof pipeResolvers(() => {})).toEqual('function')
-      expect(typeof pipeResolvers(() => {}, () => {})).toEqual('function')
+      expect(
+        typeof pipeResolvers(
+          () => {},
+          () => {}
+        )
+      ).toEqual('function')
     })
 
     it('should return root argument when empty resolver', () => {
@@ -23,21 +32,21 @@ describe('pipeResolvers', () => {
     })
 
     it('should return undefined on skiped resolvers', () => {
-      expect(pipeResolvers(resolvers.skip)(1)).resolves.toBe(undefined)
+      expect(pipeResolvers(utilResolvers.skip)(1)).resolves.toBe(undefined)
     })
 
     it('should return single resolver value', () => {
-      expect(pipeResolvers(resolvers.string)()).resolves.toEqual('string')
+      expect(pipeResolvers(utilResolvers.string)()).resolves.toEqual('string')
     })
 
     it('should return resolved errors', () => {
-      expect(pipeResolvers(resolvers.error)())
+      expect(pipeResolvers(utilResolvers.error)())
         .resolves.toBeInstanceOf(Error)
         .resolves.toHaveProperty('message', 'some returned error')
     })
 
     it('should reject with thrown errors', () => {
-      expect(pipeResolvers(resolvers.thrownError)()).rejects.toThrow(
+      expect(pipeResolvers(utilResolvers.thrownError)()).rejects.toThrow(
         'some throw error'
       )
     })
@@ -52,13 +61,13 @@ describe('pipeResolvers', () => {
   })
 
   describe('two resolvers', () => {
-    it('should resolve only last value', async () => {
+    it('should resolve only last value', () => {
       expect(
-        pipeResolvers(resolvers.string, resolvers.other)()
+        pipeResolvers(utilResolvers.string, utilResolvers.other)()
       ).resolves.toEqual('other')
 
       expect(
-        pipeResolvers(resolvers.string, resolvers.other)()
+        pipeResolvers(utilResolvers.string, utilResolvers.other)()
       ).resolves.not.toEqual('string')
     })
 
@@ -146,12 +155,12 @@ describe('pipeResolvers', () => {
     /**
      * Sample resolver for the current user object.
      */
-    const user = (root, args, { user }) => user
+    const user = (root, args, context) => context.user
 
     /**
-     * Sample resolver for wheter user is logged in or not.
+     * Sample resolver for whether user is logged in or not.
      */
-    const loggedIn = pipeResolvers(user, user => !!user)
+    const loggedIn = pipeResolvers(user, currentUser => !!currentUser)
 
     const election = () => ({
       id: 1,
@@ -161,14 +170,14 @@ describe('pipeResolvers', () => {
         { choice: 'C', id: 3 },
         { choice: 'B', id: 4 },
         { choice: 'C', id: 5 },
-        { choice: 'C', id: 6 }
-      ]
+        { choice: 'C', id: 6 },
+      ],
     })
 
     /**
      * Sample resolver for an array of votes.
      */
-    const votes = election => election.votes
+    const votes = currentElection => currentElection.votes
 
     /**
      * Sample resolver for the calculation of winner choice.
@@ -233,7 +242,7 @@ describe('pipeResolvers', () => {
 
       const resolvers = {
         Query: { election, user, loggedIn },
-        Election: { votes, winningChoice }
+        Election: { votes, winningChoice },
       }
 
       const schema = makeExecutableSchema({ typeDefs, resolvers })

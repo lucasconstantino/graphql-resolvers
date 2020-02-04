@@ -6,7 +6,7 @@ import { pipeResolvers } from '../src/pipeResolvers'
 import {
   isDependee,
   resolveDependee,
-  resolveDependees
+  resolveDependees,
 } from '../src/dependingResolvers'
 
 /**
@@ -17,10 +17,9 @@ const delayed = value =>
 
 /**
  * Setup resolvers with dependencies between them.
- * @param {Function} getter A function to allow altering the resolver function.
  * @return {Object} resolvers.
  */
-const setupResolvers = (getter = v => v) => {
+const setupResolvers = () => {
   const resolvers = {}
   const sources = {}
 
@@ -76,7 +75,7 @@ describe('dependingResolvers', () => {
 
       const schema = makeExecutableSchema({
         typeDefs,
-        resolvers: { Query: resolvers }
+        resolvers: { Query: resolvers },
       })
 
       return { schema, resolvers, sources }
@@ -86,7 +85,7 @@ describe('dependingResolvers', () => {
       it('should resolve value normally', async () => {
         const {
           schema,
-          sources: { dependee }
+          sources: { dependee },
         } = setup()
         const result = await graphql(schema, '{ dependee }', null, {})
         expect(result).toHaveProperty('data.dependee', 'dependee value')
@@ -96,7 +95,7 @@ describe('dependingResolvers', () => {
       it('should resolve value normally, even when resolved to a promise', async () => {
         const {
           schema,
-          sources: { delayedDependee }
+          sources: { delayedDependee },
         } = setup()
         const result = await graphql(schema, '{ delayedDependee }', null, {})
         expect(result).toHaveProperty(
@@ -120,7 +119,7 @@ describe('dependingResolvers', () => {
       it('should resolve dependent when requiring both fields', async () => {
         const {
           schema,
-          sources: { dependee, dependent }
+          sources: { dependee, dependent },
         } = setup()
         const result = await graphql(
           schema,
@@ -139,7 +138,7 @@ describe('dependingResolvers', () => {
       it('should resolve dependent when requiring only dependent', async () => {
         const {
           schema,
-          sources: { dependee, dependent }
+          sources: { dependee, dependent },
         } = setup()
         const result = await graphql(schema, '{ dependent }', null, {})
         expect(result).toHaveProperty(
@@ -175,7 +174,7 @@ describe('dependingResolvers', () => {
       it('should resolve dependee only once, even when it resolves to a promise', async () => {
         const {
           schema,
-          sources: { delayedDependee, dependentOnDelayed }
+          sources: { delayedDependee, dependentOnDelayed },
         } = setup()
         const result = await graphql(
           schema,
@@ -197,7 +196,7 @@ describe('dependingResolvers', () => {
       it('should resolve dependents when requiring all fields', async () => {
         const {
           schema,
-          sources: { dependee, delayedDependee, dependents }
+          sources: { dependee, delayedDependee, dependents },
         } = setup()
         const result = await graphql(
           schema,
@@ -218,7 +217,7 @@ describe('dependingResolvers', () => {
       it('should resolve dependents when requiring only dependent field', async () => {
         const {
           schema,
-          sources: { dependee, delayedDependee, dependents }
+          sources: { dependee, delayedDependee, dependents },
         } = setup()
         const result = await graphql(schema, '{ dependents }', null, {})
         expect(result).toHaveProperty('data.dependents.0', 'dependee value')
@@ -284,11 +283,11 @@ describe('dependingResolvers', () => {
         resolvers: {
           Query: {
             type: () => ({
-              id: 'TYPE_ID'
-            })
+              id: 'TYPE_ID',
+            }),
           },
-          Type: resolvers
-        }
+          Type: resolvers,
+        },
       })
 
       return { schema, resolvers, sources }
@@ -298,7 +297,7 @@ describe('dependingResolvers', () => {
       it('should resolve value normally', async () => {
         const {
           schema,
-          sources: { dependee }
+          sources: { dependee },
         } = setup()
         const result = await graphql(schema, '{ type { dependee } }', null, {})
         expect(result).toHaveProperty('data.type.dependee', 'dependee value')
@@ -308,7 +307,7 @@ describe('dependingResolvers', () => {
       it('should resolve value normally, even when resolved to a promise', async () => {
         const {
           schema,
-          sources: { delayedDependee }
+          sources: { delayedDependee },
         } = setup()
         const result = await graphql(
           schema,
@@ -326,7 +325,7 @@ describe('dependingResolvers', () => {
       it('should resolve value normally, even when resolved to a promise', async () => {
         const {
           schema,
-          sources: { delayedDependee }
+          sources: { delayedDependee },
         } = setup()
         const result = await graphql(
           schema,
@@ -360,7 +359,7 @@ describe('dependingResolvers', () => {
       it('should resolve dependent when requiring both fields', async () => {
         const {
           schema,
-          sources: { dependee, dependent }
+          sources: { dependee, dependent },
         } = setup()
         const result = await graphql(
           schema,
@@ -379,7 +378,7 @@ describe('dependingResolvers', () => {
       it('should resolve dependent when requiring only dependent', async () => {
         const {
           schema,
-          sources: { dependee, dependent }
+          sources: { dependee, dependent },
         } = setup()
         const result = await graphql(schema, '{ type { dependent } }', null, {})
         expect(result).toHaveProperty(
@@ -420,7 +419,7 @@ describe('dependingResolvers', () => {
       it('should resolve dependee only once, even when it resolves to a promise', async () => {
         const {
           schema,
-          sources: { delayedDependee, dependentOnDelayed }
+          sources: { delayedDependee, dependentOnDelayed },
         } = setup()
         const result = await graphql(
           schema,
@@ -442,7 +441,7 @@ describe('dependingResolvers', () => {
       it('should resolve dependents when requiring all fields', async () => {
         const {
           schema,
-          sources: { dependee, delayedDependee, dependents }
+          sources: { dependee, delayedDependee, dependents },
         } = setup()
         const result = await graphql(
           schema,
@@ -478,7 +477,7 @@ describe('dependingResolvers', () => {
       it('should resolve dependents when requiring only dependent field', async () => {
         const {
           schema,
-          sources: { dependee, delayedDependee, dependents }
+          sources: { dependee, delayedDependee, dependents },
         } = setup()
 
         const result = await graphql(

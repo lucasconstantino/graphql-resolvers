@@ -5,7 +5,11 @@ import { makeExecutableSchema } from 'graphql-tools'
 import { skip } from '../src/utils'
 import { combineResolvers } from '../src/combineResolvers'
 
-import { resolvers, promiseResolvers, spyResolvers } from './helpers'
+import {
+  resolvers as utilResolvers,
+  promiseResolvers,
+  spyResolvers,
+} from './helpers'
 
 describe('combineResolvers', () => {
   beforeEach(jest.clearAllMocks)
@@ -14,7 +18,12 @@ describe('combineResolvers', () => {
     it('should return a function once combined', () => {
       expect(typeof combineResolvers()).toBe('function')
       expect(typeof combineResolvers(() => {})).toBe('function')
-      expect(typeof combineResolvers(() => {}, () => {})).toBe('function')
+      expect(
+        typeof combineResolvers(
+          () => {},
+          () => {}
+        )
+      ).toBe('function')
     })
 
     it('should return undefined when empty resolver', () => {
@@ -22,21 +31,21 @@ describe('combineResolvers', () => {
     })
 
     it('should return undefined on skiped resolvers', () => {
-      expect(combineResolvers(resolvers.skip)()).resolves.toBeUndefined()
+      expect(combineResolvers(utilResolvers.skip)()).resolves.toBeUndefined()
     })
 
     it('should return single resolver value', () => {
-      expect(combineResolvers(resolvers.string)()).resolves.toBe('string')
+      expect(combineResolvers(utilResolvers.string)()).resolves.toBe('string')
     })
 
     it('should return resolved errors', () => {
-      expect(combineResolvers(resolvers.error)())
+      expect(combineResolvers(utilResolvers.error)())
         .resolves.toBeInstanceOf(Error)
         .resolves.toHaveProperty('message', 'some returned error')
     })
 
     it('should reject with thrown errors', () => {
-      expect(combineResolvers(resolvers.thrownError)()).rejects.toThrow(
+      expect(combineResolvers(utilResolvers.thrownError)()).rejects.toThrow(
         'some throw error'
       )
     })
@@ -51,8 +60,11 @@ describe('combineResolvers', () => {
   })
 
   describe('two resolvers', () => {
-    it('should resolve only first value', async () => {
-      const resolver = combineResolvers(resolvers.string, resolvers.other)
+    it('should resolve only first value', () => {
+      const resolver = combineResolvers(
+        utilResolvers.string,
+        utilResolvers.other
+      )
       expect(resolver()).resolves.toBe('string')
       expect(resolver()).resolves.not.toBe('other')
     })
@@ -158,10 +170,8 @@ describe('combineResolvers', () => {
     const vote = combineResolvers(
       isNotUnderage(16),
       isValidOption,
-      (root, { choice }) => {
-        // Vote logic
-        return true
-      }
+      // Vote logic
+      () => true
     )
 
     describe('functional', () => {
@@ -245,7 +255,7 @@ describe('combineResolvers', () => {
 
       const resolvers = {
         Query: { hello, sensitive },
-        Mutation: { vote }
+        Mutation: { vote },
       }
 
       const schema = makeExecutableSchema({ typeDefs, resolvers })
@@ -294,7 +304,7 @@ describe('combineResolvers', () => {
         it('should return error when user is underage', () => {
           expect(
             graphql(schema, 'mutation { vote(choice: "B") }', null, {
-              user: { age: 10 }
+              user: { age: 10 },
             })
           ).resolves.toHaveProperty('errors.0.message', 'User is underage 16')
         })
@@ -302,7 +312,7 @@ describe('combineResolvers', () => {
         it('should return error when options is invalid', () => {
           expect(
             graphql(schema, 'mutation { vote(choice: "Z") }', null, {
-              user: { age: 18 }
+              user: { age: 18 },
             })
           ).resolves.toHaveProperty('errors.0.message', 'Option "Z" is invalid')
         })
@@ -310,7 +320,7 @@ describe('combineResolvers', () => {
         it('should return true when vote is registered', () => {
           expect(
             graphql(schema, 'mutation { vote(choice: "C") }', null, {
-              user: { age: 18 }
+              user: { age: 18 },
             })
           ).resolves.toHaveProperty('data.vote', true)
         })

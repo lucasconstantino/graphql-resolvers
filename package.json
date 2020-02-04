@@ -45,6 +45,7 @@
       "git add"
     ]
   },
+  "prettier": "@strv/prettier-config",
   "jest": {
     "collectCoverage": true,
     "collectCoverageFrom": [
@@ -75,14 +76,14 @@
     "@babel/polyfill": "^7.4.4",
     "@babel/preset-env": "^7.4.5",
     "@babel/register": "^7.4.4",
+    "@strv/eslint-config-node": "^2.1.2",
+    "@strv/prettier-config": "^1.0.3",
     "babel-core": "^7.0.0-bridge.0",
+    "babel-eslint": "^10.0.3",
     "babel-jest": "^25.1.0",
     "babel-preset-taller": "^0.1.1",
     "codecov": "^3.6.4",
     "eslint": "^6.8.0",
-    "eslint-config-taller": "^2.0.0",
-    "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-node": "^11.0.0",
     "graphql": "^14.6.0",
     "graphql-tools": "^4.0.6",
     "husky": "^4.2.1",
